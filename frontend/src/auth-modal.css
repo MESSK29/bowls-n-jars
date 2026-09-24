@@ -1,0 +1,289 @@
+.auth-wrapper {
+    position: relative;
+    width: 750px;
+    height: 450px;
+    background: transparent;
+    border: 2px solid var(--terracotta-500, #C86D51);
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 0 25px rgba(200, 109, 81, 0.4);
+    font-family: inherit;
+}
+
+.auth-wrapper .form-box {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-wrapper .form-box.login {
+    left: 0;
+    padding: 0px 60px 0 40px;
+}
+
+.auth-wrapper .form-box.login .animation {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0);
+    transition: .7s ease;
+    transition-delay: calc(.1s * var(--j));
+}
+
+.auth-wrapper.active .form-box.login .animation {
+    transform: translateX(-120%);
+    opacity: 0;
+    filter: blur(10px);
+    transition-delay: calc(.1s * var(--i));
+}
+
+.auth-wrapper .form-box.register {
+    right: 0;
+    padding: 0px 40px 0px 60px;
+    pointer-events: none;
+}
+
+.auth-wrapper.active .form-box.register {
+    pointer-events: auto;
+}
+
+.auth-wrapper .form-box.register .animation {
+    transform: translateX(120%);
+    opacity: 0;
+    filter: blur(10px);
+    transition: .7s ease;
+}
+
+.auth-wrapper.active .form-box.register .animation {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0);
+    transition-delay: calc(.1s * var(--i));
+}
+
+.auth-form-box h2 {
+    font-size: 32px;
+    color: #FAFAF7; /* cream-50 */
+    text-align: center;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
+.auth-form-box .input-box {
+    position: relative;
+    width: 100%;
+    height: 45px;
+    margin: 25px 0;
+}
+
+.auth-input-box input {
+    width: 100%;
+    height: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    border-bottom: 2px solid rgba(250, 250, 247, 0.5); /* semi-transparent cream */
+    padding-right: 23px;
+    font-size: 14px;
+    color: #FAFAF7;
+    font-weight: 500;
+    transition: .5s;
+}
+
+.auth-input-box input:focus,
+.auth-input-box input:valid {
+    border-bottom-color: var(--terracotta-400, #D9856A);
+}
+
+.auth-input-box label {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    font-size: 14px;
+    color: rgba(250, 250, 247, 0.7);
+    pointer-events: none;
+    transition: .5s;
+}
+
+.auth-input-box input:focus~label,
+.auth-input-box input:valid~label {
+    top: -5px;
+    color: var(--terracotta-400, #D9856A);
+    font-size: 12px;
+}
+
+.auth-input-box i {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    transform: translateY(-50%);
+    font-size: 18px;
+    color: rgba(250, 250, 247, 0.7);
+    transition: .5s;
+}
+
+.auth-input-box input:focus~i,
+.auth-input-box input:valid~i {
+    color: var(--terracotta-400, #D9856A);
+}
+
+.auth-btn {
+    position: relative;
+    width: 100%;
+    height: 45px;
+    background: transparent;
+    border: 2px solid var(--terracotta-500, #C86D51);
+    outline: none;
+    border-radius: 40px;
+    cursor: pointer;
+    font-size: 16px;
+    color: #FAFAF7;
+    font-weight: 600;
+    z-index: 1;
+    overflow: hidden;
+}
+
+.auth-btn::before {
+    content: '';
+    position: absolute;
+    top: -100%;
+    left: 0;
+    width: 100%;
+    height: 300%;
+    background: linear-gradient(#2C2621, #C86D51, #2C2621, #C86D51); /* clay-900 to terracotta */
+    z-index: -1;
+    transition: .5s;
+}
+
+.auth-btn:hover::before {
+    top: 0;
+}
+
+.auth-form-box .logreg-link {
+    font-size: 13px;
+    color: #FAFAF7;
+    text-align: center;
+    margin: 20px 0px 10px;
+}
+
+.logreg-link p a {
+    color: var(--terracotta-400, #D9856A);
+    text-decoration: none;
+    font-weight: 600;
+}
+
+.logreg-link p a:hover {
+    text-decoration: underline;
+}
+
+.auth-wrapper .info-text {
+    position: absolute;
+    top: 0;
+    width: 50%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.auth-wrapper .info-text.login { 
+    right: 0;
+    text-align: right;
+    padding: 0px 40px 60px 150px;
+}
+
+.auth-wrapper .info-text.login .animation {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0);
+    transition: .7s ease;
+    transition-delay: calc(.1s * var(--j));
+}
+
+.auth-wrapper.active .info-text.login .animation {
+    transform: translateX(120%);
+    opacity: 0;
+    filter: blur(10px);
+    transition-delay: calc(.1s * var(--i));
+}
+
+.auth-wrapper .info-text.register {
+    left: 0;
+    text-align: left;
+    padding: 0px 150px 60px 40px;
+    pointer-events: none;
+}
+
+.auth-wrapper.active .info-text.register {
+    pointer-events: auto;
+}
+
+.auth-wrapper .info-text.register .animation {
+    transform: translateX(-120%);
+    opacity: 0;
+    filter: blur(10px);
+    transition: .7s ease;
+    transition-delay: calc(.1s * var(--j));
+}
+
+.auth-wrapper.active .info-text.register .animation {
+    transform: translateX(0);
+    opacity: 1;
+    filter: blur(0);
+    transition-delay: calc(.1s * var(--i));
+}
+
+.info-text h2 {
+    font-size: 36px;
+    color: #FAFAF7;
+    line-height: 1.3;
+    font-family: 'Outfit', sans-serif;
+    font-weight: 700;
+}
+
+.info-text p {
+    font-size: 14px;
+    color: rgba(250, 250, 247, 0.9);
+}
+
+.auth-wrapper .bg-animate {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 850px;
+    height: 600px;
+    background: linear-gradient(45deg, #2C2621, #D9856A); /* clay-900 to terracotta-400 */
+    border-bottom: 3px solid #D9856A;
+    transform: rotate(10deg) skewY(40deg);
+    transform-origin: bottom right;
+    transition: 1.5s ease;
+    transition-delay: 1.6s;
+}
+
+.auth-wrapper.active .bg-animate {
+    transform: rotate(0) skewY(0);
+    transition-delay: .5s;
+}
+
+.auth-wrapper .bg-animate2 {
+    position: absolute;
+    top: 100%;
+    left: 250px;
+    width: 850px;
+    height: 700px;
+    background: #2C2621; /* clay-900 */
+    border-top: 3px solid #D9856A;
+    transform: rotate(0) skewY(0);
+    transform-origin: bottom left;
+    transition: 1.5s ease;
+    transition-delay: .5s;
+}
+
+.auth-wrapper.active .bg-animate2 {
+    transform: rotate(-11deg) skewY(-41deg);
+    transition-delay: 1.2s;
+}

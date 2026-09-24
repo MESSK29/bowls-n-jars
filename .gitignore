@@ -1,0 +1,27 @@
+# Backend
+backend/venv/
+backend/__pycache__/
+backend/app/__pycache__/
+backend/**/__pycache__/
+backend/bowlsnjars.db
+backend/.env
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+frontend/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Videos (too large for git)
+*.mp4
+
+# Gemini
+.gemini/
+.agents/
