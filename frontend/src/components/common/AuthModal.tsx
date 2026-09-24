@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Mail, Lock, User as UserIcon, AlertCircle } from 'lucide-react';
+import { X, Mail, Lock, User as UserIcon, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import { useAuthStore } from '../../stores/authStore';
 import { useLanguage } from '../../context/LanguageContext';
 import '../../auth-modal.css';
@@ -20,6 +20,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { login, register, isLoading } = useAuthStore();
   const { t } = useLanguage();
@@ -110,9 +111,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <Mail className="w-4 h-4 absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70" />
             </div>
             <div className="input-box auth-input-box animation" style={styleWithVars(2, 23)}>
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} />
               <label>{t('auth.password', 'Password')}</label>
-              <Lock className="w-4 h-4 absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70" />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                className="absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70 hover:text-white transition-colors focus:outline-none"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
             <button className="auth-btn animation" type="submit" style={styleWithVars(3, 24)} disabled={isLoading}>
               {isLoading ? '...' : t('auth.login', 'Login')}
@@ -152,9 +159,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <Mail className="w-4 h-4 absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70" />
             </div>
             <div className="input-box auth-input-box animation" style={styleWithVars(20, 3)}>
-              <input type="password" required value={password} onChange={(e) => setPassword(e.target.value)} />
+              <input type={showPassword ? "text" : "password"} required value={password} onChange={(e) => setPassword(e.target.value)} />
               <label>{t('auth.password', 'Password')}</label>
-              <Lock className="w-4 h-4 absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70" />
+              <button 
+                type="button" 
+                onClick={() => setShowPassword(!showPassword)} 
+                className="absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70 hover:text-white transition-colors focus:outline-none"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
             <button className="auth-btn animation" type="submit" style={styleWithVars(21, 4)} disabled={isLoading}>
               {isLoading ? '...' : t('auth.register', 'Sign up')}
