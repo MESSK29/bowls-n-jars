@@ -59,19 +59,14 @@ export const DesktopModeBanner: React.FC = () => {
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex-1 overflow-hidden relative h-full flex items-center pr-12">
+      <div className="flex-1 overflow-hidden relative h-full flex items-center">
         <div 
-          className={`flex whitespace-nowrap font-medium text-[11px] sm:text-xs tracking-wide
+          className={`whitespace-nowrap font-medium text-[11px] sm:text-xs tracking-wide
             ${isHovered ? '[animation-play-state:paused]' : 'animate-marquee'}
             motion-reduce:animate-none motion-reduce:whitespace-normal motion-reduce:text-center motion-reduce:w-full
           `}
         >
-          <span className="px-4">{message}</span>
-          <span className="px-4">{message}</span>
-          <span className="px-4">{message}</span>
-          <span className="px-4">{message}</span>
-          <span className="px-4">{message}</span>
-          <span className="px-4">{message}</span>
+          <span>{message}</span>
         </div>
       </div>
       
@@ -85,11 +80,11 @@ export const DesktopModeBanner: React.FC = () => {
 
       <style>{`
         @keyframes marquee {
-          0% { transform: translateX(0%); }
-          100% { transform: translateX(-50%); }
+          0% { transform: translateX(100vw); }
+          100% { transform: translateX(-100%); }
         }
         .animate-marquee {
-          animation: marquee 8s linear infinite;
+          animation: marquee 12s linear infinite;
         }
       `}</style>
     </div>
