@@ -135,7 +135,7 @@ export const LandingPage: React.FC = () => {
         once: true
       });
 
-      // Scroll fanning out effect
+      // Scroll fanning out effect (scaled dynamically for mobile/tablet to avoid overflow)
       ScrollTrigger.create({
         trigger: ".hero-animated",
         start: "top top",
@@ -143,8 +143,12 @@ export const LandingPage: React.FC = () => {
         scrub: 0.8,
         onUpdate: (self) => {
           const p = self.progress;
-          gsap.set(".big-results", { scale: 1 + 0.15 * p, opacity: 1 - 0.4 * p });
-          gsap.set(".small-team", { y: -60 * p, opacity: 1 - p * 1.5 });
+          gsap.set(".big-results", { scale: 1 + 0.12 * p, opacity: 1 - 0.4 * p });
+          gsap.set(".small-team", { y: -50 * p, opacity: 1 - p * 1.5 });
+
+          // Scale moves down on mobile & tablet so cards never push past screen edges
+          const screenWidth = window.innerWidth;
+          const moveScale = screenWidth < 640 ? 0.32 : screenWidth < 1024 ? 0.65 : 1;
 
           const moves = [
             { x: -260, y: -40, rot: -25 },
@@ -161,9 +165,9 @@ export const LandingPage: React.FC = () => {
             const m = moves[i];
             const rest = parseFloat(card.dataset.restRot || '0');
             gsap.set(card, {
-              x: m.x * p,
-              y: m.y * p,
-              rotation: rest + m.rot * p
+              x: m.x * p * moveScale,
+              y: m.y * p * moveScale,
+              rotation: rest + m.rot * p * (screenWidth < 640 ? 0.5 : 1)
             });
           });
         }
@@ -188,9 +192,9 @@ export const LandingPage: React.FC = () => {
         scrollTrigger: { trigger: ".gallery-grid", start: "top 80%" }
       });
       gsap.from(".g-card", {
-        y: 80,
-        scale: 0.9,
-        rotation: (i) => (i % 2 === 0 ? -3 : 3),
+        y: 60,
+        scale: 0.92,
+        rotation: (i) => (i % 2 === 0 ? -2 : 2),
         duration: 1,
         stagger: 0.08,
         ease: "back.out(1.3)",
@@ -206,7 +210,7 @@ export const LandingPage: React.FC = () => {
         scrollTrigger: { trigger: ".stats", start: "top 80%" }
       });
       gsap.from(".stats-inner", {
-        y: 60,
+        y: 40,
         scale: 0.97,
         duration: 1.2,
         ease: "power3.out",
@@ -238,9 +242,10 @@ export const LandingPage: React.FC = () => {
 
     }, containerRef); // Scope to container
 
-    // Mouse Parallax Logic
+    // Parallax Logic - only on fine pointer devices (desktops/laptops with mouse)
+    const isFinePointer = window.matchMedia('(pointer: fine)').matches;
     let mx = 0, my = 0, tx = 0, ty = 0;
-    let rafId: number;
+    let rafId: number | null = null;
 
     const onMouseMove = (e: MouseEvent) => {
       if (heroRef.current) {
@@ -266,13 +271,13 @@ export const LandingPage: React.FC = () => {
       rafId = requestAnimationFrame(parallax);
     };
 
-    if (heroRef.current) {
+    if (isFinePointer && heroRef.current) {
       heroRef.current.addEventListener('mousemove', onMouseMove);
       heroRef.current.addEventListener('mouseleave', onMouseLeave);
       rafId = requestAnimationFrame(parallax);
     }
 
-    // Card Hover 3D Logic
+    // Card Hover 3D Logic - desktop only
     const animCards = containerRef.current?.querySelectorAll('.anim-card');
     const onCardMove = (e: Event, card: HTMLElement) => {
       const mouseEvent = e as MouseEvent;
@@ -301,7 +306,7 @@ export const LandingPage: React.FC = () => {
         overwrite: "auto"
       });
     };
-    if (animCards) {
+    if (isFinePointer && animCards) {
       animCards.forEach((c) => {
         const card = c as HTMLElement;
         card.addEventListener('mousemove', (e) => onCardMove(e, card));
@@ -311,7 +316,9 @@ export const LandingPage: React.FC = () => {
 
     return () => {
       ctx.revert();
-      cancelAnimationFrame(rafId);
+      if (rafId !== null) {
+        cancelAnimationFrame(rafId);
+      }
       if (heroRef.current) {
         heroRef.current.removeEventListener('mousemove', onMouseMove);
         heroRef.current.removeEventListener('mouseleave', onMouseLeave);
@@ -354,7 +361,7 @@ export const LandingPage: React.FC = () => {
         <div className="absolute bottom-6 right-6 z-30">
           <button
             onClick={toggleMute}
-            className="p-3 bg-black/30 hover:bg-black/50 backdrop-blur-md rounded-full text-white transition-all shadow-lg border border-white/20 flex items-center space-x-2"
+            className="min-h-[44px] min-w-[44px] p-3 bg-black/40 hover:bg-black/60 backdrop-blur-md rounded-full text-white transition-all shadow-lg border border-white/20 flex items-center justify-center space-x-2"
             aria-label={isMuted ? "Unmute video" : "Mute video"}
           >
             {isMuted ? (
@@ -369,14 +376,14 @@ export const LandingPage: React.FC = () => {
         </div>
 
         {/* Scroll Down Indicator */}
-        <div className="absolute bottom-12 left-1/2 -translate-x-1/2 z-20 animate-bounce">
+        <div className="absolute bottom-8 sm:bottom-12 left-1/2 -translate-x-1/2 z-20 animate-bounce">
           <button
             onClick={scrollToContent}
-            className="text-white/70 hover:text-white transition-colors flex flex-col items-center"
+            className="min-h-[44px] min-w-[44px] p-2 text-white/80 hover:text-white transition-colors flex flex-col items-center justify-center"
             aria-label="Scroll down to content"
           >
-            <span className="text-xs font-semibold tracking-widest uppercase mb-2 drop-shadow-md">Scroll to Explore</span>
-            <ChevronDown className="w-10 h-10 drop-shadow-lg" />
+            <span className="text-[11px] sm:text-xs font-semibold tracking-widest uppercase mb-1 drop-shadow-md">Scroll to Explore</span>
+            <ChevronDown className="w-8 h-8 sm:w-10 sm:h-10 drop-shadow-lg" />
           </button>
         </div>
 
@@ -508,35 +515,35 @@ export const LandingPage: React.FC = () => {
         </section>
 
         {/* Footer CTA */}
-        <section className="pb-32 pt-8 flex justify-center relative z-10">
+        <section className="pb-24 sm:pb-32 pt-8 px-4 flex justify-center relative z-10">
           <button
             onClick={() => setIsAuthModalOpen(true)}
-            className="inline-flex items-center gap-2 bg-clay-900 text-cream-50 border-none px-10 py-5 rounded-full font-sans text-lg font-bold cursor-pointer shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all group"
+            className="w-full max-w-sm sm:w-auto inline-flex items-center justify-center gap-3 bg-clay-900 hover:bg-black text-cream-50 border-none px-8 sm:px-10 py-4 sm:py-5 min-h-[48px] rounded-full font-sans text-base sm:text-lg font-bold cursor-pointer shadow-xl hover:-translate-y-1 hover:shadow-2xl transition-all group"
           >
-            {t('landing.enter', 'Enter the Shop')}
-            <span className="w-8 h-8 rounded-full bg-gradient-to-br from-terracotta-400 to-terracotta-600 flex items-center justify-center text-white transition-transform group-hover:rotate-45 ml-2">
+            <span>{t('landing.enter', 'Enter the Shop')}</span>
+            <span className="w-8 h-8 rounded-full bg-gradient-to-br from-terracotta-400 to-terracotta-600 flex items-center justify-center text-white transition-transform group-hover:rotate-45 shrink-0">
               <ArrowRight className="w-4 h-4" />
             </span>
           </button>
         </section>
 
         {/* Cinematic Footer Section */}
-        <section className="bg-clay-900 text-cream-50 pt-20 pb-12 px-6 relative z-10 border-t-8 border-terracotta-500 overflow-hidden">
+        <section className="bg-clay-900 text-cream-50 pt-16 sm:pt-20 pb-12 px-4 sm:px-6 relative z-10 border-t-8 border-terracotta-500 overflow-hidden">
           <BowlsNJarsText />
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 relative z-10">
+          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 relative z-10">
             
             {/* Brand Column */}
             <div className="space-y-4">
-              <h3 className="font-heading text-3xl font-bold tracking-wide">Bowls 'N' Jars</h3>
+              <h3 className="font-heading text-2xl sm:text-3xl font-bold tracking-wide">Bowls 'N' Jars</h3>
               <p className="text-clay-400 text-sm leading-relaxed max-w-xs">
                 Handcrafted Ceramics for Everyday Living. Grounding, natural, and built to outlive fast-fashion consumption.
               </p>
             </div>
 
             {/* Address Column */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2 text-terracotta-400 mb-2">
-                <MapPin className="w-5 h-5" />
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center space-x-2 text-terracotta-400 mb-1">
+                <MapPin className="w-5 h-5 shrink-0" />
                 <h4 className="font-heading text-lg font-semibold text-white">Our Office Address</h4>
               </div>
               <p className="text-clay-400 text-sm leading-relaxed max-w-xs whitespace-pre-line">
@@ -545,32 +552,32 @@ export const LandingPage: React.FC = () => {
             </div>
 
             {/* Contact Column */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               <div>
-                <div className="flex items-center space-x-2 text-terracotta-400 mb-2">
-                  <Phone className="w-5 h-5" />
+                <div className="flex items-center space-x-2 text-terracotta-400 mb-1">
+                  <Phone className="w-5 h-5 shrink-0" />
                   <h4 className="font-heading text-lg font-semibold text-white">Call Us</h4>
                 </div>
                 <div className="flex flex-col space-y-1 text-clay-400 text-sm font-sans tracking-wide">
-                  <a href={`tel:${config.contactPhone1.replace(/[^0-9+]/g, '')}`} className="hover:text-terracotta-400 transition-colors inline-block w-max">{config.contactPhone1}</a>
-                  <a href={`tel:${config.contactPhone2.replace(/[^0-9+]/g, '')}`} className="hover:text-terracotta-400 transition-colors inline-block w-max">{config.contactPhone2}</a>
+                  <a href={`tel:${config.contactPhone1.replace(/[^0-9+]/g, '')}`} className="min-h-[44px] flex items-center hover:text-terracotta-400 transition-colors w-max">{config.contactPhone1}</a>
+                  <a href={`tel:${config.contactPhone2.replace(/[^0-9+]/g, '')}`} className="min-h-[44px] flex items-center hover:text-terracotta-400 transition-colors w-max">{config.contactPhone2}</a>
                 </div>
               </div>
               <div>
-                <div className="flex items-center space-x-2 text-terracotta-400 mb-2">
-                  <Mail className="w-5 h-5" />
+                <div className="flex items-center space-x-2 text-terracotta-400 mb-1">
+                  <Mail className="w-5 h-5 shrink-0" />
                   <h4 className="font-heading text-lg font-semibold text-white">General Enquiries</h4>
                 </div>
-                <a href={`mailto:${config.contactEmail}`} className="text-clay-400 text-sm font-sans hover:text-terracotta-400 transition-colors inline-block w-max">
+                <a href={`mailto:${config.contactEmail}`} className="min-h-[44px] flex items-center text-clay-400 text-sm font-sans hover:text-terracotta-400 transition-colors w-max">
                   {config.contactEmail}
                 </a>
               </div>
             </div>
 
             {/* Timings Column */}
-            <div className="space-y-4">
-              <div className="flex items-center space-x-2 text-terracotta-400 mb-2">
-                <Clock className="w-5 h-5" />
+            <div className="space-y-3 sm:space-y-4">
+              <div className="flex items-center space-x-2 text-terracotta-400 mb-1">
+                <Clock className="w-5 h-5 shrink-0" />
                 <h4 className="font-heading text-lg font-semibold text-white">Our Timing</h4>
               </div>
               <p className="text-clay-400 text-sm bg-clay-800 p-3 rounded-xl border border-clay-700 inline-block whitespace-pre-line">

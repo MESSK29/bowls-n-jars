@@ -29,6 +29,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { showToast } = useToast();
   const { t } = useLanguage();
 
+  const [showAltImage, setShowAltImage] = useState(false);
   const isFavorited = isInWishlist(product.id);
 
   const handleAddToCart = (e: React.MouseEvent) => {
@@ -59,27 +60,40 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     toggleWishlist(product);
   };
 
+  const handleImageTap = (e: React.MouseEvent) => {
+    // On touch screens, tap toggles between primary and secondary image
+    if (secondaryImage !== primaryImage && window.matchMedia('(hover: none)').matches) {
+      e.preventDefault();
+      setShowAltImage(!showAltImage);
+    }
+  };
+
   const primaryImage = product.images[0] || 'https://images.unsplash.com/photo-1610701596007-11502861dcfa?q=80&w=600&auto=format&fit=crop';
   const secondaryImage = product.images[1] || primaryImage;
+
+  const isShowingSecondary = (isHovered || showAltImage) && secondaryImage !== primaryImage;
 
   return (
     <motion.div
       ref={cardRef}
       whileHover={{ y: -4 }}
       transition={{ duration: 0.35, ease: LUXURY_EASE }}
-      className="group relative bg-white rounded-3xl p-3 border border-sand-200 hover:border-sand-300 shadow-warm-sm hover:shadow-warm-md transition-all duration-300 flex flex-col justify-between"
+      className="group relative bg-white rounded-2xl sm:rounded-3xl p-2.5 sm:p-3 border border-sand-200 hover:border-sand-300 shadow-warm-sm hover:shadow-warm-md transition-all duration-300 flex flex-col justify-between"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
       {/* Image Container with Crossfade & Badges */}
-      <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-sand-100 mb-3">
+      <div 
+        className="relative aspect-square w-full rounded-xl sm:rounded-2xl overflow-hidden bg-sand-100 mb-2.5 sm:mb-3 cursor-pointer"
+        onClick={handleImageTap}
+      >
         <Link to={`/product/${product.slug}`} onClick={playTap} className="block w-full h-full relative">
           <img
             src={primaryImage}
             alt={product.name}
             loading="lazy"
             className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ease-out group-hover:scale-105 ${
-              isHovered && secondaryImage !== primaryImage ? 'opacity-0' : 'opacity-100'
+              isShowingSecondary ? 'opacity-0' : 'opacity-100'
             }`}
           />
           {secondaryImage !== primaryImage && (
@@ -88,31 +102,31 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
               alt={`${product.name} alternate view`}
               loading="lazy"
               className={`absolute inset-0 w-full h-full object-cover object-center transition-opacity duration-700 ease-out group-hover:scale-105 ${
-                isHovered ? 'opacity-100' : 'opacity-0'
+                isShowingSecondary ? 'opacity-100' : 'opacity-0'
               }`}
             />
           )}
         </Link>
 
         {/* Badges */}
-        <div className="absolute top-2.5 left-2.5 flex flex-col gap-1.5 pointer-events-none">
+        <div className="absolute top-2 left-2 sm:top-2.5 sm:left-2.5 flex flex-col gap-1 pointer-events-none">
           {product.is_bestseller && (
-            <span className="px-2.5 py-1 bg-terracotta-500 text-white text-[10px] font-bold uppercase tracking-wider rounded-lg shadow-sm">
+            <span className="px-2 py-0.5 sm:px-2.5 sm:py-1 bg-terracotta-500 text-white text-[9px] sm:text-[10px] font-bold uppercase tracking-wider rounded-md sm:rounded-lg shadow-sm">
               Bestseller
             </span>
           )}
           {product.compare_at_price && product.compare_at_price > product.price && (
-            <span className="px-2 py-0.5 bg-sage-600 text-white text-[10px] font-bold rounded-lg shadow-sm">
+            <span className="px-1.5 py-0.5 sm:px-2 bg-sage-600 text-white text-[9px] sm:text-[10px] font-bold rounded-md sm:rounded-lg shadow-sm">
               {savings(product.compare_at_price, product.price)}
             </span>
           )}
         </div>
 
-        {/* Wishlist Button */}
+        {/* Wishlist Button (Min 44x44px touch target) */}
         <button
           onClick={handleToggleWishlist}
           aria-label={isFavorited ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute top-2.5 right-2.5 p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-sm ${
+          className={`absolute top-1.5 right-1.5 sm:top-2.5 sm:right-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center p-2 rounded-full backdrop-blur-md transition-all duration-200 shadow-sm ${
             isFavorited
               ? 'bg-red-50 text-red-500 scale-105'
               : 'bg-white/80 text-clay-600 hover:text-red-500 hover:bg-white'
@@ -125,7 +139,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         <div className="absolute bottom-2.5 inset-x-2.5 hidden sm:block opacity-0 group-hover:opacity-100 transition-opacity duration-300">
           <button
             onClick={handleAddToCart}
-            className={`w-full py-2.5 rounded-xl font-medium text-xs flex items-center justify-center space-x-1.5 shadow-warm-md transition-all relative overflow-hidden ${
+            className={`w-full min-h-[44px] py-2.5 rounded-xl font-medium text-xs flex items-center justify-center space-x-1.5 shadow-warm-md transition-all relative overflow-hidden ${
               added
                 ? 'bg-sage-600 text-white'
                 : 'bg-clay-900/90 hover:bg-clay-900 text-cream-50 backdrop-blur-md active:scale-95'
@@ -193,10 +207,12 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
 
           <button
             onClick={handleAddToCart}
-            className="sm:hidden p-2 rounded-xl bg-terracotta-500 active:scale-95 text-white"
+            className={`sm:hidden min-w-[44px] min-h-[44px] p-2.5 rounded-xl active:scale-95 text-white flex items-center justify-center transition-colors ${
+              added ? 'bg-sage-600' : 'bg-terracotta-500'
+            }`}
             aria-label="Add to basket"
           >
-            <ShoppingBag className="w-4 h-4" />
+            {added ? <Check className="w-4 h-4" /> : <ShoppingBag className="w-4 h-4" />}
           </button>
         </div>
       </div>

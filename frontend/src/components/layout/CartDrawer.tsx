@@ -64,18 +64,18 @@ export const CartDrawer: React.FC = () => {
             onClick={handleClose}
           />
 
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
+          <div className="fixed inset-y-0 right-0 max-w-full flex pl-0 sm:pl-10">
             {/* Sliding Drawer Panel with Spring Physics */}
             <motion.div
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={SPRING_GENTLE}
-              className="w-screen max-w-md bg-cream-100 shadow-2xl flex flex-col border-l border-sand-300 relative z-50"
+              className="w-screen max-w-md bg-cream-100 shadow-2xl flex flex-col border-l border-sand-300 relative z-50 h-full"
             >
               
               {/* Drawer Header */}
-              <div className="p-5 border-b border-sand-200 flex items-center justify-between bg-cream-200">
+              <div className="p-4 sm:p-5 border-b border-sand-200 flex items-center justify-between bg-cream-200">
                 <div className="flex items-center space-x-2">
                   <ShoppingBag className="w-5 h-5 text-terracotta-600" />
                   <h2 className="font-heading text-lg font-bold text-clay-900">
@@ -84,7 +84,7 @@ export const CartDrawer: React.FC = () => {
                 </div>
                 <button
                   onClick={handleClose}
-                  className="p-1.5 rounded-full text-clay-400 hover:text-clay-800 hover:bg-sand-200 transition-colors"
+                  className="min-w-[44px] min-h-[44px] p-2 rounded-full text-clay-400 hover:text-clay-800 hover:bg-sand-200 transition-colors flex items-center justify-center"
                   aria-label="Close basket"
                 >
                   <X className="w-5 h-5" />
@@ -171,19 +171,19 @@ export const CartDrawer: React.FC = () => {
                         </div>
 
                         <div className="flex items-center justify-between mt-3">
-                          {/* Quantity Controller */}
-                          <div className="flex items-center border border-sand-300 rounded-lg bg-white overflow-hidden shadow-xs">
+                          {/* Quantity Controller with Touch-Friendly Targets */}
+                          <div className="flex items-center border border-sand-300 rounded-xl bg-white overflow-hidden shadow-xs">
                             <button
                               onClick={() => {
                                 playTap();
                                 updateQuantity(product.id, quantity - 1);
                               }}
-                              className="p-1 px-2 text-clay-600 hover:bg-sand-100 transition-colors"
+                              className="min-w-[36px] min-h-[36px] p-2 text-clay-600 hover:bg-sand-100 transition-colors flex items-center justify-center active:bg-sand-200"
                               aria-label="Decrease quantity"
                             >
-                              <Minus className="w-3 h-3" />
+                              <Minus className="w-3.5 h-3.5" />
                             </button>
-                            <span className="px-2 text-xs font-semibold text-clay-800 min-w-[20px] text-center">
+                            <span className="px-3 text-xs font-semibold text-clay-800 min-w-[28px] text-center">
                               {quantity}
                             </span>
                             <button
@@ -191,10 +191,10 @@ export const CartDrawer: React.FC = () => {
                                 playTap();
                                 updateQuantity(product.id, quantity + 1);
                               }}
-                              className="p-1 px-2 text-clay-600 hover:bg-sand-100 transition-colors"
+                              className="min-w-[36px] min-h-[36px] p-2 text-clay-600 hover:bg-sand-100 transition-colors flex items-center justify-center active:bg-sand-200"
                               aria-label="Increase quantity"
                             >
-                              <Plus className="w-3 h-3" />
+                              <Plus className="w-3.5 h-3.5" />
                             </button>
                           </div>
 

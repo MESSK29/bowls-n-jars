@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ShoppingBag, 
   Heart, 
@@ -14,7 +14,9 @@ import {
   ChevronDown,
   Volume2,
   VolumeX,
-  Globe
+  Globe,
+  Sparkles,
+  ArrowRight
 } from 'lucide-react';
 import { useCartStore } from '../../stores/cartStore';
 import { useWishlistStore } from '../../stores/wishlistStore';
@@ -25,14 +27,16 @@ import { Language } from '../../utils/translations';
 import { useFlyingCart } from '../common/FlyingCartThumbnail';
 import { AuthModal } from '../common/AuthModal';
 import { STATIC_CATEGORIES } from '../../utils/categories';
+import { SPRING_GENTLE, LUXURY_EASE } from '../../utils/motion';
 
 export const Navbar: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [isCategoryExpanded, setIsCategoryExpanded] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
@@ -61,6 +65,26 @@ export const Navbar: React.FC = () => {
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
+
+  // Close mobile drawer on route change
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+    setIsSearchOpen(false);
+    setIsUserMenuOpen(false);
+    setIsLangMenuOpen(false);
+  }, [location.pathname]);
+
+  // Lock body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -91,20 +115,20 @@ export const Navbar: React.FC = () => {
             : 'bg-cream-200/90 backdrop-blur-xs border-b border-sand-200 py-0'
         }`}
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-20 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16 sm:h-20 transition-all duration-300">
             
-            {/* Mobile menu trigger */}
+            {/* Left: Mobile hamburger menu trigger */}
             <div className="flex items-center lg:hidden">
               <button
                 onClick={() => {
                   playTap();
-                  setIsMobileMenuOpen(!isMobileMenuOpen);
+                  setIsMobileMenuOpen(true);
                 }}
-                className="p-2 rounded-xl text-clay-700 hover:bg-sand-100 transition-colors"
-                aria-label="Toggle Navigation Menu"
+                className="min-w-[44px] min-h-[44px] p-2.5 rounded-xl text-clay-800 hover:bg-sand-200 active:scale-95 transition-all flex items-center justify-center"
+                aria-label="Open Navigation Menu"
               >
-                {isMobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                <Menu className="w-6 h-6" />
               </button>
             </div>
 
@@ -113,23 +137,23 @@ export const Navbar: React.FC = () => {
               <Link
                 to="/"
                 onClick={playTap}
-                className="flex items-center space-x-3 group"
+                className="flex items-center space-x-2 sm:space-x-3 group"
               >
-                <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-terracotta-400 to-terracotta-600 flex items-center justify-center text-white shadow-warm-sm group-hover:scale-105 transition-transform duration-300">
-                  <span className="text-xl">🏺</span>
+                <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-2xl bg-gradient-to-br from-terracotta-400 to-terracotta-600 flex items-center justify-center text-white shadow-warm-sm group-hover:scale-105 transition-transform duration-300 shrink-0">
+                  <span className="text-lg sm:text-xl">🏺</span>
                 </div>
                 <div>
-                  <span className="font-heading text-2xl sm:text-3xl font-bold tracking-tight text-clay-900 block leading-none">
+                  <span className="font-heading text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight text-clay-900 block leading-none">
                     Bowls <span className="text-terracotta-500">&apos;N&apos;</span> Jars
                   </span>
-                  <span className="text-[10px] tracking-widest uppercase font-medium text-clay-600 block mt-0.5">
+                  <span className="text-[9px] sm:text-[10px] tracking-widest uppercase font-medium text-clay-600 block mt-0.5">
                     Handcrafted Living
                   </span>
                 </div>
               </Link>
             </div>
 
-            {/* Desktop Navigation Links */}
+            {/* Desktop Navigation Links (>=1024px) */}
             <nav className="hidden lg:flex items-center space-x-7 text-sm font-medium text-clay-700">
               <Link
                 to="/shop"
@@ -144,7 +168,7 @@ export const Navbar: React.FC = () => {
                   <span>Categories</span>
                   <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
                 </button>
-                <div className="absolute top-full left-0 w-48 bg-white border border-sand-200 rounded-xl shadow-warm-lg py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left group-hover:translate-y-1">
+                <div className="absolute top-full left-0 w-52 bg-white border border-sand-200 rounded-2xl shadow-warm-lg py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left group-hover:translate-y-1">
                   {STATIC_CATEGORIES.map(cat => (
                     <Link
                       key={cat.slug}
@@ -177,16 +201,16 @@ export const Navbar: React.FC = () => {
             </nav>
 
             {/* Right Action Icons */}
-            <div className="flex items-center space-x-1 sm:space-x-2">
+            <div className="flex items-center space-x-0.5 sm:space-x-1.5">
               
-              {/* Multi-Language Selector Dropdown */}
-              <div className="relative">
+              {/* Desktop Multi-Language Selector Dropdown (>= 1024px) */}
+              <div className="relative hidden lg:block">
                 <button
                   onClick={() => {
                     playTap();
                     setIsLangMenuOpen(!isLangMenuOpen);
                   }}
-                  className="flex items-center space-x-1 py-1.5 px-2.5 rounded-full bg-sand-100 hover:bg-sand-200 border border-sand-300 text-xs font-semibold text-clay-800 transition-colors"
+                  className="min-h-[38px] flex items-center space-x-1 py-1.5 px-3 rounded-full bg-sand-100 hover:bg-sand-200 border border-sand-300 text-xs font-semibold text-clay-800 transition-colors"
                   title="Switch Language / भाषा बदलें / భాష మార్చండి"
                 >
                   <Globe className="w-3.5 h-3.5 text-terracotta-600" />
@@ -217,12 +241,12 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
 
-              {/* Sound Design Toggle */}
+              {/* Sound Design Toggle (Desktop & Tablet) */}
               <button
                 onClick={toggleMute}
                 aria-label={isMuted ? 'Unmute tactile sound' : 'Mute tactile sound'}
                 title={isMuted ? 'Unmute porcelain clinks' : 'Mute sound effects'}
-                className="p-2 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors relative"
+                className="hidden sm:flex min-w-[40px] min-h-[40px] items-center justify-center p-2 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors relative"
               >
                 {isMuted ? (
                   <VolumeX className="w-4 h-4 text-clay-400" />
@@ -234,8 +258,8 @@ export const Navbar: React.FC = () => {
                 )}
               </button>
 
-              {/* Search Toggle */}
-              <div className="relative">
+              {/* Search Toggle (Desktop) */}
+              <div className="relative hidden md:block">
                 {isSearchOpen ? (
                   <form onSubmit={handleSearchSubmit} className="flex items-center">
                     <input
@@ -249,7 +273,7 @@ export const Navbar: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setIsSearchOpen(false)}
-                      className="absolute right-2.5 text-clay-400 hover:text-clay-700"
+                      className="min-w-[44px] min-h-[44px] flex items-center justify-center absolute right-0 text-clay-400 hover:text-clay-700"
                     >
                       <X className="w-4 h-4" />
                     </button>
@@ -260,7 +284,7 @@ export const Navbar: React.FC = () => {
                       playTap();
                       setIsSearchOpen(true);
                     }}
-                    className="p-2.5 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors"
+                    className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2.5 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors"
                     aria-label="Search items"
                   >
                     <Search className="w-5 h-5" />
@@ -268,16 +292,28 @@ export const Navbar: React.FC = () => {
                 )}
               </div>
 
+              {/* Mobile Search Button (shows mobile search bar below header) */}
+              <button
+                onClick={() => {
+                  playTap();
+                  setIsSearchOpen(!isSearchOpen);
+                }}
+                className="md:hidden min-w-[44px] min-h-[44px] flex items-center justify-center p-2.5 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors"
+                aria-label="Search items"
+              >
+                <Search className="w-5 h-5" />
+              </button>
+
               {/* Wishlist */}
               <Link
                 to="/account?tab=wishlist"
                 onClick={playTap}
-                className="p-2.5 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors relative"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2.5 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors relative"
                 aria-label="View Wishlist"
               >
                 <Heart className="w-5 h-5" />
                 {wishlistCount > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 bg-sage-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-scaleIn">
+                  <span className="absolute top-1.5 right-1.5 w-4 h-4 bg-sage-600 text-white text-[10px] font-bold rounded-full flex items-center justify-center animate-scaleIn pointer-events-none">
                     {wishlistCount}
                   </span>
                 )}
@@ -289,7 +325,7 @@ export const Navbar: React.FC = () => {
                 onClick={handleOpenCart}
                 animate={cartPulse ? { scale: [1, 1.25, 0.95, 1.1, 1] } : { scale: 1 }}
                 transition={{ duration: 0.4 }}
-                className="p-2.5 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors relative"
+                className="min-w-[44px] min-h-[44px] flex items-center justify-center p-2.5 text-clay-700 hover:text-terracotta-600 rounded-full hover:bg-sand-100 transition-colors relative"
                 aria-label="View Shopping Basket"
               >
                 <ShoppingBag className="w-5 h-5" />
@@ -298,29 +334,29 @@ export const Navbar: React.FC = () => {
                     key={cartCount}
                     initial={{ scale: 0.5 }}
                     animate={{ scale: 1 }}
-                    className="absolute top-1 right-1 w-4 h-4 bg-terracotta-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center"
+                    className="absolute top-1.5 right-1.5 w-4 h-4 bg-terracotta-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center pointer-events-none"
                   >
                     {cartCount}
                   </motion.span>
                 )}
               </motion.button>
 
-              {/* User Menu / Login */}
+              {/* User Menu / Login (Desktop >= 640px) */}
               {isAuthenticated && user ? (
-                <div className="relative">
+                <div className="relative hidden sm:block">
                   <button
                     onClick={() => {
                       playTap();
                       setIsUserMenuOpen(!isUserMenuOpen);
                     }}
-                    className="flex items-center space-x-1.5 py-1.5 px-3 bg-sand-100 hover:bg-sand-200 border border-sand-300 rounded-full text-xs font-semibold text-clay-800 transition-colors"
+                    className="min-h-[44px] flex items-center space-x-1.5 py-1.5 px-3 bg-sand-100 hover:bg-sand-200 border border-sand-300 rounded-full text-xs font-semibold text-clay-800 transition-colors"
                   >
                     <UserIcon className="w-3.5 h-3.5 text-terracotta-600" />
-                    <span className="hidden md:inline max-w-[90px] truncate">{user.full_name.split(' ')[0]}</span>
+                    <span className="max-w-[80px] md:max-w-[100px] truncate">{user.full_name.split(' ')[0]}</span>
                     <ChevronDown className="w-3 h-3 text-clay-500" />
                   </button>
 
-                  {/* Dropdown */}
+                  {/* Desktop Dropdown */}
                   {isUserMenuOpen && (
                     <div
                       className="absolute right-0 mt-2 w-52 bg-white rounded-2xl shadow-warm-lg border border-sand-200 py-2 z-50 text-sm animate-fadeIn"
@@ -339,7 +375,7 @@ export const Navbar: React.FC = () => {
                       <Link
                         to="/account"
                         onClick={playTap}
-                        className="flex items-center space-x-2.5 px-4 py-2 text-clay-700 hover:bg-sand-50 hover:text-terracotta-600"
+                        className="flex items-center space-x-2.5 px-4 py-2.5 min-h-[44px] text-clay-700 hover:bg-sand-50 hover:text-terracotta-600"
                       >
                         <Package className="w-4 h-4" />
                         <span>{t('nav.account')}</span>
@@ -349,7 +385,7 @@ export const Navbar: React.FC = () => {
                         <Link
                           to="/admin"
                           onClick={playTap}
-                          className="flex items-center space-x-2.5 px-4 py-2 text-amber-700 hover:bg-amber-50 font-bold"
+                          className="flex items-center space-x-2.5 px-4 py-2.5 min-h-[44px] text-amber-700 hover:bg-amber-50 font-bold"
                         >
                           <LayoutDashboard className="w-4 h-4 text-amber-600" />
                           <span>{t('nav.admin_portal')}</span>
@@ -361,7 +397,7 @@ export const Navbar: React.FC = () => {
                           playTap();
                           logout();
                         }}
-                        className="w-full flex items-center space-x-2.5 px-4 py-2 text-red-600 hover:bg-red-50 text-left border-t border-sand-100 mt-1"
+                        className="w-full flex items-center space-x-2.5 px-4 py-2.5 min-h-[44px] text-red-600 hover:bg-red-50 text-left border-t border-sand-100 mt-1"
                       >
                         <LogOut className="w-4 h-4" />
                         <span>{t('nav.logout')}</span>
@@ -375,7 +411,7 @@ export const Navbar: React.FC = () => {
                     playTap();
                     setIsAuthModalOpen(true);
                   }}
-                  className="hidden sm:inline-flex items-center space-x-1.5 py-2 px-4 rounded-full bg-clay-800 hover:bg-clay-900 text-cream-50 text-xs font-medium transition-all shadow-sm"
+                  className="hidden sm:inline-flex items-center space-x-1.5 min-h-[44px] py-2 px-4 rounded-full bg-clay-800 hover:bg-clay-900 text-cream-50 text-xs font-medium transition-all shadow-sm"
                 >
                   <UserIcon className="w-3.5 h-3.5" />
                   <span>{t('nav.sign_in')}</span>
@@ -385,74 +421,309 @@ export const Navbar: React.FC = () => {
           </div>
         </div>
 
-        {/* Mobile Navigation Menu Drawer */}
-        {isMobileMenuOpen && (
-          <div className="lg:hidden border-t border-sand-200 bg-cream-100 px-4 pt-3 pb-6 space-y-3 animate-fadeIn">
-            <Link
-              to="/shop"
-              onClick={() => {
-                playTap();
-                setIsMobileMenuOpen(false);
-              }}
-              className="block px-3 py-2 text-base font-medium text-clay-800 rounded-xl hover:bg-sand-200"
+        {/* Mobile Search Overlay Bar */}
+        <AnimatePresence>
+          {isSearchOpen && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="md:hidden border-t border-sand-300 bg-cream-100/98 px-4 py-3 shadow-md"
             >
-              Shop All
-            </Link>
-            
-            <div className="px-3 py-2 text-sm font-bold text-clay-500 uppercase tracking-wider">
-              Categories
-            </div>
-            {STATIC_CATEGORIES.map(cat => (
-              <Link
-                key={cat.slug}
-                to={`/shop?category=${cat.slug}`}
-                onClick={() => {
-                  playTap();
-                  setIsMobileMenuOpen(false);
-                  window.scrollTo(0, 0);
-                }}
-                className="block pl-6 pr-3 py-2 text-base font-medium text-clay-700 rounded-xl hover:bg-sand-200"
-              >
-                {cat.name}
-              </Link>
-            ))}
-            <Link
-              to="/about"
-              onClick={() => {
-                playTap();
-                setIsMobileMenuOpen(false);
-              }}
-              className="block px-3 py-2 text-base font-medium text-clay-800 rounded-xl hover:bg-sand-200"
-            >
-              {t('nav.our_story')}
-            </Link>
-            <Link
-              to="/contact"
-              onClick={() => {
-                playTap();
-                setIsMobileMenuOpen(false);
-              }}
-              className="block px-3 py-2 text-base font-medium text-clay-800 rounded-xl hover:bg-sand-200"
-            >
-              {t('nav.contact_faq')}
-            </Link>
-            {!isAuthenticated && (
-              <div className="pt-3 border-t border-sand-200">
+              <form onSubmit={handleSearchSubmit} className="relative flex items-center">
+                <input
+                  type="text"
+                  autoFocus
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder={t('nav.search_placeholder')}
+                  className="w-full pl-4 pr-12 py-3 text-base bg-white border border-sand-300 focus:border-terracotta-500 rounded-2xl focus:outline-none focus:ring-2 focus:ring-terracotta-200 shadow-inner text-clay-900 placeholder-clay-400"
+                />
                 <button
-                  onClick={() => {
-                    playTap();
-                    setIsMobileMenuOpen(false);
-                    setIsAuthModalOpen(true);
-                  }}
-                  className="w-full py-2.5 bg-terracotta-500 text-white rounded-xl font-medium text-sm text-center"
+                  type="button"
+                  onClick={() => setIsSearchOpen(false)}
+                  className="absolute right-2 min-w-[44px] min-h-[44px] flex items-center justify-center text-clay-500 hover:text-clay-800"
+                  aria-label="Close search"
                 >
-                  {t('nav.sign_in')}
+                  <X className="w-5 h-5" />
                 </button>
-              </div>
-            )}
+              </form>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </header>
+
+      {/* MOBILE / TABLET SLIDE-IN NAVIGATION DRAWER */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-50 overflow-hidden lg:hidden">
+            {/* Backdrop Blur Overlay */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3, ease: LUXURY_EASE }}
+              className="absolute inset-0 bg-clay-950/60 backdrop-blur-xs"
+              onClick={() => setIsMobileMenuOpen(false)}
+              aria-hidden="true"
+            />
+
+            {/* Sliding Drawer Container */}
+            <div className="fixed inset-y-0 left-0 max-w-full flex pr-10">
+              <motion.div
+                initial={{ x: '-100%' }}
+                animate={{ x: 0 }}
+                exit={{ x: '-100%' }}
+                transition={SPRING_GENTLE}
+                className="w-[85vw] max-w-sm sm:max-w-md bg-cream-100 flex flex-col shadow-2xl border-r border-sand-300 relative z-50 h-full"
+              >
+                
+                {/* Drawer Header */}
+                <div className="p-4 sm:p-5 border-b border-sand-200 flex items-center justify-between bg-cream-200">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-terracotta-400 to-terracotta-600 flex items-center justify-center text-white shadow-sm">
+                      <span>🏺</span>
+                    </div>
+                    <div>
+                      <span className="font-heading text-lg font-bold text-clay-900 block leading-none">
+                        Bowls 'N' Jars
+                      </span>
+                      <span className="text-[9px] uppercase tracking-wider text-clay-500 font-medium">
+                        Handcrafted Living
+                      </span>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      playTap();
+                      setIsMobileMenuOpen(false);
+                    }}
+                    className="min-w-[44px] min-h-[44px] p-2 rounded-xl text-clay-500 hover:text-clay-900 hover:bg-sand-200 transition-colors flex items-center justify-center"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-6 h-6" />
+                  </button>
+                </div>
+
+                {/* Drawer Scrollable Body */}
+                <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
+                  
+                  {/* Main Links */}
+                  <div className="space-y-1">
+                    <Link
+                      to="/shop"
+                      onClick={() => {
+                        playTap();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="min-h-[48px] flex items-center justify-between px-3.5 py-3 rounded-2xl text-base font-semibold text-clay-800 hover:bg-sand-200 active:bg-sand-300 transition-colors"
+                    >
+                      <span>Shop All Goods</span>
+                      <ArrowRight className="w-4 h-4 text-clay-400" />
+                    </Link>
+
+                    {/* Collapsible Categories Accordion */}
+                    <div>
+                      <button
+                        onClick={() => {
+                          playTap();
+                          setIsCategoryExpanded(!isCategoryExpanded);
+                        }}
+                        className="min-h-[48px] w-full flex items-center justify-between px-3.5 py-3 rounded-2xl text-base font-semibold text-clay-800 hover:bg-sand-200 active:bg-sand-300 transition-colors"
+                      >
+                        <span>Categories</span>
+                        <ChevronDown className={`w-4 h-4 text-clay-500 transition-transform duration-200 ${isCategoryExpanded ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {isCategoryExpanded && (
+                        <div className="pl-4 pr-1 py-1 space-y-1 animate-fadeIn">
+                          {STATIC_CATEGORIES.map(cat => (
+                            <Link
+                              key={cat.slug}
+                              to={`/shop?category=${cat.slug}`}
+                              onClick={() => {
+                                playTap();
+                                setIsMobileMenuOpen(false);
+                              }}
+                              className="min-h-[44px] flex items-center px-3.5 py-2 text-sm font-medium text-clay-700 hover:text-terracotta-600 rounded-xl hover:bg-sand-200 transition-colors"
+                            >
+                              {cat.name}
+                            </Link>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    <Link
+                      to="/about"
+                      onClick={() => {
+                        playTap();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="min-h-[48px] flex items-center justify-between px-3.5 py-3 rounded-2xl text-base font-semibold text-clay-800 hover:bg-sand-200 active:bg-sand-300 transition-colors"
+                    >
+                      <span>{t('nav.our_story')}</span>
+                      <ArrowRight className="w-4 h-4 text-clay-400" />
+                    </Link>
+
+                    <Link
+                      to="/contact"
+                      onClick={() => {
+                        playTap();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="min-h-[48px] flex items-center justify-between px-3.5 py-3 rounded-2xl text-base font-semibold text-clay-800 hover:bg-sand-200 active:bg-sand-300 transition-colors"
+                    >
+                      <span>{t('nav.contact_faq')}</span>
+                      <ArrowRight className="w-4 h-4 text-clay-400" />
+                    </Link>
+                  </div>
+
+                  {/* PREFERENCES PANEL (Language + Tactile Theme Audio) */}
+                  <div className="bg-sand-100/90 rounded-3xl p-4 border border-sand-300/80 space-y-4">
+                    
+                    {/* Language Switcher Section */}
+                    <div>
+                      <div className="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-clay-600 mb-2.5">
+                        <Globe className="w-3.5 h-3.5 text-terracotta-600" />
+                        <span>Language / भाषा / భాష</span>
+                      </div>
+                      <div className="grid grid-cols-3 gap-2">
+                        {languages.map((l) => (
+                          <button
+                            key={l.code}
+                            onClick={() => handleSelectLanguage(l.code)}
+                            className={`min-h-[44px] py-2 px-2 rounded-xl text-xs font-semibold flex flex-col items-center justify-center transition-all ${
+                              language === l.code
+                                ? 'bg-terracotta-500 text-white shadow-sm'
+                                : 'bg-white text-clay-700 border border-sand-300 hover:bg-sand-50'
+                            }`}
+                          >
+                            <span>{l.native}</span>
+                            <span className="text-[10px] opacity-80">{l.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Tactile Audio Toggle */}
+                    <div className="pt-2 border-t border-sand-200">
+                      <button
+                        onClick={toggleMute}
+                        className="w-full min-h-[44px] flex items-center justify-between p-2.5 rounded-2xl bg-white border border-sand-300 hover:bg-sand-50 transition-colors text-xs font-medium text-clay-800"
+                      >
+                        <div className="flex items-center space-x-2.5">
+                          {isMuted ? (
+                            <VolumeX className="w-4 h-4 text-clay-400" />
+                          ) : (
+                            <Volume2 className="w-4 h-4 text-terracotta-600" />
+                          )}
+                          <div className="text-left">
+                            <span className="font-semibold block">Tactile Sound Effects</span>
+                            <span className="text-[10px] text-clay-500">
+                              {isMuted ? 'Muted' : 'Playing ceramic clinks on tap'}
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className={`w-10 h-6 rounded-full transition-colors p-0.5 flex items-center ${
+                          isMuted ? 'bg-sand-300 justify-start' : 'bg-terracotta-500 justify-end'
+                        }`}>
+                          <div className="w-5 h-5 rounded-full bg-white shadow-sm" />
+                        </div>
+                      </button>
+                    </div>
+
+                  </div>
+
+                  {/* Trust Pill */}
+                  <div className="flex items-center space-x-2 p-3 rounded-2xl bg-white/70 border border-sand-200 text-xs text-clay-600">
+                    <Sparkles className="w-4 h-4 text-ochre-500 shrink-0" />
+                    <span>Free shipping on all orders over ₹999 across India.</span>
+                  </div>
+
+                </div>
+
+                {/* Drawer Footer (User Authentication & Actions) */}
+                <div className="p-4 sm:p-5 border-t border-sand-200 bg-white">
+                  {isAuthenticated && user ? (
+                    <div className="space-y-3">
+                      <div className="flex items-center space-x-3 pb-2 border-b border-sand-100">
+                        <div className="w-10 h-10 rounded-full bg-terracotta-100 text-terracotta-700 flex items-center justify-center font-bold text-sm shrink-0">
+                          {user.full_name.charAt(0)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="font-semibold text-sm text-clay-900 truncate">{user.full_name}</p>
+                          <p className="text-xs text-clay-500 truncate">{user.email}</p>
+                        </div>
+                        {isAdmin && (
+                          <span className="px-2 py-0.5 bg-amber-100 text-amber-900 text-[10px] font-bold uppercase rounded-md shrink-0">
+                            Admin
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Link
+                          to="/account"
+                          onClick={() => {
+                            playTap();
+                            setIsMobileMenuOpen(false);
+                          }}
+                          className="min-h-[44px] flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl bg-sand-100 text-clay-800 text-xs font-semibold hover:bg-sand-200 transition-colors"
+                        >
+                          <Package className="w-3.5 h-3.5 text-clay-600" />
+                          <span>{t('nav.account')}</span>
+                        </Link>
+
+                        {isAdmin && (
+                          <Link
+                            to="/admin"
+                            onClick={() => {
+                              playTap();
+                              setIsMobileMenuOpen(false);
+                            }}
+                            className="min-h-[44px] flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl bg-amber-100 text-amber-900 text-xs font-bold hover:bg-amber-200 transition-colors"
+                          >
+                            <LayoutDashboard className="w-3.5 h-3.5 text-amber-700" />
+                            <span>Admin</span>
+                          </Link>
+                        )}
+
+                        <button
+                          onClick={() => {
+                            playTap();
+                            setIsMobileMenuOpen(false);
+                            logout();
+                          }}
+                          className={`min-h-[44px] flex items-center justify-center space-x-1.5 py-2.5 px-3 rounded-xl bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100 transition-colors ${isAdmin ? 'col-span-2' : ''}`}
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          <span>{t('nav.logout')}</span>
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => {
+                        playTap();
+                        setIsMobileMenuOpen(false);
+                        setIsAuthModalOpen(true);
+                      }}
+                      className="w-full min-h-[48px] py-3 bg-terracotta-500 hover:bg-terracotta-600 active:scale-98 text-white rounded-2xl font-bold text-sm text-center shadow-warm-md flex items-center justify-center space-x-2 transition-all"
+                    >
+                      <UserIcon className="w-4 h-4" />
+                      <span>{t('nav.sign_in')}</span>
+                    </button>
+                  )}
+                </div>
+
+              </motion.div>
+            </div>
           </div>
         )}
-      </header>
+      </AnimatePresence>
 
       {/* Auth Modal */}
       <AuthModal

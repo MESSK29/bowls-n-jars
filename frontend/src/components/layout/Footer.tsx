@@ -29,8 +29,8 @@ export const Footer: React.FC = () => {
     <footer className="bg-clay-900 text-cream-200 pt-16 pb-10 border-t border-clay-800 relative overflow-hidden">
       <BowlsNJarsText />
       {/* Brand Values Ribbon */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-14 relative z-10">
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 px-6 bg-clay-800/80 rounded-3xl border border-clay-700">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-10 sm:mb-14 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 py-6 sm:py-8 px-5 sm:px-6 bg-clay-800/80 rounded-3xl border border-clay-700">
           <div className="flex items-center space-x-3.5">
             <div className="w-10 h-10 rounded-2xl bg-terracotta-500/20 text-terracotta-400 flex items-center justify-center flex-shrink-0">
               <Sparkles className="w-5 h-5" />
@@ -75,7 +75,7 @@ export const Footer: React.FC = () => {
 
       {/* Main Footer Links & Story */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10 pb-12 border-b border-clay-800">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 pb-12 border-b border-clay-800">
           
           {/* Brand Info */}
           <div className="lg:col-span-2 space-y-4">
@@ -89,7 +89,7 @@ export const Footer: React.FC = () => {
               Bowls &apos;N&apos; Jars celebrates the beauty of tactile, slow craftsmanship. From wheel-thrown dinnerware to ceramic-insulated lunch boxes and durable stationery, each piece is designed to ground your everyday moments in warmth and intention.
             </p>
             <p className="text-xs text-clay-400">
-              <a href={`https://maps.google.com/?q=${encodeURIComponent(config.storeAddress)}`} target="_blank" rel="noopener noreferrer" className="hover:text-terracotta-400 transition-colors whitespace-pre-line">
+              <a href={`https://maps.google.com/?q=${encodeURIComponent(config.storeAddress)}`} target="_blank" rel="noopener noreferrer" className="hover:text-terracotta-400 transition-colors whitespace-pre-line inline-block min-h-[44px] pt-1">
                 Studio: {config.storeAddress}
               </a>
             </p>
@@ -100,16 +100,16 @@ export const Footer: React.FC = () => {
             <h5 className="font-heading text-sm font-semibold text-cream-100 uppercase tracking-wider">
               Collections
             </h5>
-            <ul className="space-y-2 text-xs sm:text-sm text-clay-400">
+            <ul className="space-y-1.5 text-xs sm:text-sm text-clay-400">
               {STATIC_CATEGORIES.map(cat => (
                 <li key={cat.slug}>
-                  <Link to={`/shop?category=${cat.slug}`} className="hover:text-terracotta-400 transition-colors">
+                  <Link to={`/shop?category=${cat.slug}`} className="hover:text-terracotta-400 transition-colors inline-block py-1">
                     {cat.name}
                   </Link>
                 </li>
               ))}
               <li>
-                <Link to="/shop" className="hover:text-terracotta-400 transition-colors">
+                <Link to="/shop" className="hover:text-terracotta-400 transition-colors inline-block py-1">
                   View All Goods
                 </Link>
               </li>
@@ -121,29 +121,29 @@ export const Footer: React.FC = () => {
             <h5 className="font-heading text-sm font-semibold text-cream-100 uppercase tracking-wider">
               Studio &amp; Care
             </h5>
-            <ul className="space-y-2 text-xs sm:text-sm text-clay-400">
+            <ul className="space-y-1.5 text-xs sm:text-sm text-clay-400">
               <li>
-                <Link to="/about" className="hover:text-terracotta-400 transition-colors">
+                <Link to="/about" className="hover:text-terracotta-400 transition-colors inline-block py-1">
                   Our Philosophy
                 </Link>
               </li>
               <li>
-                <Link to="/about#care" className="hover:text-terracotta-400 transition-colors">
+                <Link to="/about#care" className="hover:text-terracotta-400 transition-colors inline-block py-1">
                   Ceramic Care Guide
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-terracotta-400 transition-colors">
+                <Link to="/contact" className="hover:text-terracotta-400 transition-colors inline-block py-1">
                   Shipping &amp; Returns
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-terracotta-400 transition-colors">
+                <Link to="/contact" className="hover:text-terracotta-400 transition-colors inline-block py-1">
                   Frequently Asked Questions
                 </Link>
               </li>
               <li>
-                <Link to="/contact" className="hover:text-terracotta-400 transition-colors">
+                <Link to="/contact" className="hover:text-terracotta-400 transition-colors inline-block py-1">
                   Wholesale Inquiries
                 </Link>
               </li>
@@ -173,12 +173,12 @@ export const Footer: React.FC = () => {
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
                     placeholder="Your email address"
-                    className="w-full pl-10 pr-4 py-2.5 bg-clay-800 border border-clay-700 rounded-xl text-xs text-cream-100 placeholder-clay-500 focus:outline-none focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400"
+                    className="w-full pl-10 pr-4 py-3 bg-clay-800 border border-clay-700 rounded-xl text-base sm:text-xs text-cream-100 placeholder-clay-500 focus:outline-none focus:border-terracotta-400 focus:ring-1 focus:ring-terracotta-400"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-semibold tracking-wide transition-all shadow-sm"
+                  className="w-full min-h-[44px] py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-xs font-semibold tracking-wide transition-all shadow-sm flex items-center justify-center"
                 >
                   Join Newsletter
                 </button>
@@ -188,12 +188,12 @@ export const Footer: React.FC = () => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-clay-400 space-y-3 sm:space-y-0 relative z-10">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-clay-400 space-y-3 sm:space-y-0 relative z-10 text-center sm:text-left">
           <p>© {new Date().getFullYear()} Bowls &apos;N&apos; Jars Studio Inc. All handcrafted rights reserved.</p>
-          <div className="flex space-x-6">
-            <Link to="/about" className="hover:text-cream-200 transition-colors">Privacy Policy</Link>
-            <Link to="/about" className="hover:text-cream-200 transition-colors">Terms of Craft</Link>
-            <Link to="/about" className="hover:text-cream-200 transition-colors">Accessibility Statement</Link>
+          <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+            <Link to="/about" className="hover:text-cream-200 transition-colors py-1">Privacy Policy</Link>
+            <Link to="/about" className="hover:text-cream-200 transition-colors py-1">Terms of Craft</Link>
+            <Link to="/about" className="hover:text-cream-200 transition-colors py-1">Accessibility Statement</Link>
           </div>
         </div>
       </div>
