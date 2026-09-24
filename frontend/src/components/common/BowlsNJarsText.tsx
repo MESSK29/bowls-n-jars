@@ -42,7 +42,7 @@ export const BowlsNJarsText = () => {
             y: e.clientY,
           })
         }
-        className="select-none min-w-[800px] w-full"
+        className="select-none min-w-[300px] md:min-w-[800px] w-full"
       >
         <defs>
           <linearGradient

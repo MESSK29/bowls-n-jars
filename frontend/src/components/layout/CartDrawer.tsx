@@ -71,7 +71,7 @@ export const CartDrawer: React.FC = () => {
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
               transition={SPRING_GENTLE}
-              className="w-screen max-w-md bg-cream-100 shadow-2xl flex flex-col border-l border-sand-300 relative z-50 h-full"
+              className="w-full max-w-md bg-cream-100 shadow-2xl flex flex-col border-l border-sand-300 relative z-50 h-full"
             >
               
               {/* Drawer Header */}
