@@ -39,9 +39,9 @@ export const DesktopModeBanner: React.FC = () => {
   if (!isVisible) return null;
 
   const messages = {
-    en: "Best viewed in desktop mode 🖥️",
-    hi: "डेस्कटॉप मोड में सबसे अच्छा देखा गया 🖥️",
-    te: "డెస్క్‌టాప్ మోడ్‌లో ఉత్తమంగా కనిపిస్తుంది 🖥️"
+    en: "DESKTOP MODE PREFERABLE",
+    hi: "डेस्कटॉप मोड बेहतर है",
+    te: "డెస్క్‌టాప్ మోడ్ ఉత్తమం"
   };
 
   const message = messages[language as keyof typeof messages] || messages.en;
