@@ -84,7 +84,6 @@ export const LandingPage: React.FC = () => {
       // Set initial states
       gsap.set(".small-team .word > span", { y: "105%" });
       gsap.set(".big-results .letter", { y: 80, opacity: 0 });
-      gsap.set("#subline", { opacity: 0, y: 20 });
       gsap.set(".g-card", { opacity: 0 });
       gsap.set(".stats-inner", { opacity: 0 });
 
@@ -114,7 +113,6 @@ export const LandingPage: React.FC = () => {
               stagger: { each: 0.08, from: "center" },
               ease: "back.out(1.4)"
             }, 0.5)
-            .to("#subline", { opacity: 1, y: 0, duration: 0.8 }, 1.3)
             .add(() => {
               // Float animation after intro
               cards.forEach((card, i) => {
@@ -165,7 +163,6 @@ export const LandingPage: React.FC = () => {
               rotation: rest + m.rot * p
             });
           });
-          gsap.set("#subline", { opacity: 1 - p * 2 });
         }
       });
 
