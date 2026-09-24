@@ -19,8 +19,11 @@ Thumbs.db
 .vscode/
 .idea/
 
-# Videos (too large for git)
-*.mp4
+# Videos (large root-level ones only)
+/*.mp4
+
+# Allow frontend videos (small, needed for landing page)
+!frontend/public/videos/*.mp4
 
 # Gemini
 .gemini/
