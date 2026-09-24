@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useStoreConfigStore } from '../stores/storeConfigStore';
 import { AuthModal } from '../components/common/AuthModal';
 import { BowlsNJarsText } from '../components/common/BowlsNJarsText';
-import { Volume2, VolumeX, ChevronDown, ArrowRight, MapPin, Mail, Phone, Clock, Sparkles } from 'lucide-react';
+import { Volume2, VolumeX, ChevronDown, ArrowRight, MapPin, Mail, Phone, Clock, Sparkles, Truck, ShieldCheck, Tag, Check, Flame, Gift } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import '../landing.css';
@@ -32,11 +32,24 @@ const images = [
 export const LandingPage: React.FC = () => {
   const { isAuthenticated, isAdmin } = useAuthStore();
   const navigate = useNavigate();
-  const { t } = useLanguage();
+  const { t, language } = useLanguage();
   const { config } = useStoreConfigStore();
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isMuted, setIsMuted] = useState(true);
+  const [copiedPromo, setCopiedPromo] = useState(false);
+
+  const announcementText =
+    language === 'hi' ? config.announcementTextHi || config.announcementText :
+    language === 'te' ? config.announcementTextTe || config.announcementText :
+    config.announcementText;
+
+  const handleCopyPromo = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    navigator.clipboard.writeText(config.promoCode || 'FESTIVE15');
+    setCopiedPromo(true);
+    setTimeout(() => setCopiedPromo(false), 2200);
+  };
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -334,112 +347,107 @@ export const LandingPage: React.FC = () => {
   }, []);
 
 
+  const announcementItems = (
+    <div className="flex items-center gap-6 sm:gap-8 px-4 text-xs sm:text-sm font-medium whitespace-nowrap">
+      <span className="inline-flex items-center gap-2">
+        <Truck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-terracotta-400 shrink-0" />
+        <span>Pan-India <strong className="text-white font-semibold">Free Shipping</strong> above ₹{config.freeShippingThreshold.toLocaleString()}</span>
+      </span>
+      <span className="text-terracotta-400/60 text-xs">✦</span>
+      <span className="inline-flex items-center gap-2">
+        <Tag className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
+        <span>Use coupon <strong className="font-mono bg-terracotta-500/25 text-amber-300 px-1.5 py-0.5 rounded border border-terracotta-400/40 text-xs font-bold">{config.promoCode}</strong> for <strong className="text-white font-semibold">{config.promoDiscountPercent}% OFF</strong></span>
+      </span>
+      <span className="text-terracotta-400/60 text-xs">✦</span>
+      <span className="inline-flex items-center gap-2 text-cream-100">
+        <Sparkles className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-amber-400 shrink-0" />
+        <span>{announcementText}</span>
+      </span>
+      <span className="text-terracotta-400/60 text-xs">✦</span>
+      <span className="inline-flex items-center gap-2">
+        <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 shrink-0" />
+        <span><strong className="text-white font-semibold">100% Lead-Free</strong> & BIS-Certified Food-Safe Glazes</span>
+      </span>
+      <span className="text-terracotta-400/60 text-xs">✦</span>
+      <span className="inline-flex items-center gap-2">
+        <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-orange-400 shrink-0" />
+        <span>High-Fired at <strong className="text-white font-semibold">1200°C</strong> • Microwave & Dishwasher Safe</span>
+      </span>
+      <span className="text-terracotta-400/60 text-xs">✦</span>
+      <span className="inline-flex items-center gap-2">
+        <Gift className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-terracotta-300 shrink-0" />
+        <span>Fast 2-4 Days Dispatch • Cash on Delivery Available</span>
+      </span>
+      <span className="text-terracotta-400/60 text-xs">✦</span>
+    </div>
+  );
+
   return (
     <div className="font-sans" ref={containerRef}>
 
-      {/* SECTION 1: Full-Screen Video Background */}
-      <div className="relative h-[100dvh] w-full flex flex-col justify-end items-center overflow-hidden bg-clay-950">
+      {/* TOP PROMINENT SCROLLING ANNOUNCEMENT BAR */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-gradient-to-r from-clay-950 via-[#261b15] to-clay-950 text-cream-100 border-b border-terracotta-500/30 shadow-2xl backdrop-blur-md">
+        {/* Top Accent Line with subtle glow */}
+        <div className="h-[2px] w-full bg-gradient-to-r from-terracotta-600 via-amber-400 to-terracotta-600" />
 
-        {/* HIGH-VISIBILITY SCROLLING ANNOUNCEMENT BAR (Desktop & Mobile) */}
-        <div className="absolute top-0 inset-x-0 z-30 bg-clay-950/85 backdrop-blur-md border-b border-terracotta-500/30 text-cream-100 py-2.5 px-3 sm:px-6 flex items-center shadow-lg overflow-hidden">
-          <div className="shrink-0 flex items-center space-x-2 mr-3 sm:mr-4 pl-1">
-            <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-terracotta-500 to-ochre-600 text-white font-bold text-[10px] sm:text-xs tracking-wider uppercase shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              <span>STUDIO CHRONICLE</span>
+        <div className="max-w-7xl mx-auto flex items-center justify-between h-10 sm:h-11 px-2 sm:px-4">
+          
+          {/* Notice Badge */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 py-1 px-2.5 sm:px-3 bg-terracotta-500/20 border border-terracotta-400/30 rounded-full text-[10px] sm:text-xs font-bold text-terracotta-200 uppercase tracking-wider shadow-inner select-none">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-400"></span>
             </span>
+            <Sparkles className="w-3 h-3 text-amber-300 shrink-0" />
+            <span className="hidden xs:inline">Announcement</span>
           </div>
 
-          <div className="flex-1 overflow-hidden relative">
-            <div className="landing-marquee-track text-xs sm:text-sm font-medium tracking-wide text-cream-200">
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">In an age of disposable speed, we craft slow beauty that lasts.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">Clay remembers the warmth of the hands that shaped it.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span>100% Pure High-Fired Stoneware (1200°C) • Certified Lead-Free &amp; Food-Safe</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">Every vessel is born of earth, water, and fire for your mindful daily rituals.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span>Direct fair-trade partnership with master potter guilds of Jaipur &amp; Khurja</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">Tactile living begins with the objects you hold each day.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              {/* Duplicate track for seamless infinite marquee loop */}
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">In an age of disposable speed, we craft slow beauty that lasts.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">Clay remembers the warmth of the hands that shaped it.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span>100% Pure High-Fired Stoneware (1200°C) • Certified Lead-Free &amp; Food-Safe</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">Every vessel is born of earth, water, and fire for your mindful daily rituals.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span>Direct fair-trade partnership with master potter guilds of Jaipur &amp; Khurja</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
-
-              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
-                <span className="font-serif italic text-cream-100">Tactile living begins with the objects you hold each day.</span>
-                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
-              </span>
-              <span className="text-terracotta-400/80">✦</span>
+          {/* Scrolling Marquee Container */}
+          <div 
+            className="flex-1 overflow-hidden landing-marquee-container mx-2 sm:mx-4 cursor-pointer py-1"
+            onClick={() => setIsAuthModalOpen(true)}
+            title="Click to enter shop"
+          >
+            <div className="landing-marquee-track">
+              {announcementItems}
+              {announcementItems}
             </div>
           </div>
 
-          <div className="shrink-0 ml-3 sm:ml-4">
+          {/* Quick Actions */}
+          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+            <button
+              onClick={handleCopyPromo}
+              className="hidden md:inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-semibold rounded-full bg-clay-800/90 hover:bg-terracotta-900 text-terracotta-200 border border-terracotta-500/30 transition-all cursor-pointer shadow-sm"
+              title="Click to copy coupon code"
+            >
+              {copiedPromo ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-400" />
+                  <span className="text-emerald-300">Copied!</span>
+                </>
+              ) : (
+                <>
+                  <Tag className="w-3 h-3 text-amber-400" />
+                  <span>Code: <strong className="text-cream-50 font-mono">{config.promoCode}</strong></span>
+                </>
+              )}
+            </button>
+
             <button
               onClick={() => setIsAuthModalOpen(true)}
-              className="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-terracotta-500 border border-white/20 hover:border-terracotta-400 text-cream-100 text-xs font-semibold transition-all shadow-sm group"
+              className="inline-flex items-center gap-1 sm:gap-1.5 px-3 sm:px-3.5 py-1 sm:py-1.5 text-xs font-bold rounded-full bg-gradient-to-r from-terracotta-500 to-terracotta-600 hover:from-terracotta-600 hover:to-terracotta-700 text-white shadow-md hover:shadow-lg transition-all transform hover:scale-[1.02] active:scale-[0.98]"
             >
-              <span>Enter Shop</span>
-              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+              <span>{t('landing.enter', 'Enter Shop')}</span>
+              <ArrowRight className="w-3 h-3" />
             </button>
           </div>
+
         </div>
+      </div>
+
+      {/* SECTION 1: Full-Screen Video Background */}
+      <div className="relative h-[100dvh] w-full flex flex-col justify-end items-center overflow-hidden bg-clay-950 pt-11">
 
         {/* Background Video */}
         <div className="absolute inset-0 z-0 pointer-events-none bg-[#0a0a0a]">
@@ -490,35 +498,37 @@ export const LandingPage: React.FC = () => {
 
       </div>
 
-      {/* TRANSITION EDITORIAL TICKER RIBBON */}
-      <div className="bg-gradient-to-r from-terracotta-600 via-terracotta-500 to-terracotta-700 text-cream-50 py-3 sm:py-3.5 border-y-2 border-terracotta-400/60 overflow-hidden shadow-warm-md relative z-10">
-        <div className="landing-marquee-track text-xs sm:text-sm font-bold tracking-[0.2em] uppercase font-sans">
-          <span className="mx-6">SLOW LIVING</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">WHEEL THROWN BY MASTER POTTERS</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">HIGH-FIRED 1200°C STONEWARE</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">JAIPUR &amp; KHURJA HERITAGE</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">100% NON-TOXIC &amp; LEAD-FREE</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">ZERO-PLASTIC PACKAGING</span>
-          <span className="text-terracotta-200">✦</span>
-
-          {/* Duplicated track for continuous scroll */}
-          <span className="mx-6">SLOW LIVING</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">WHEEL THROWN BY MASTER POTTERS</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">HIGH-FIRED 1200°C STONEWARE</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">JAIPUR &amp; KHURJA HERITAGE</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">100% NON-TOXIC &amp; LEAD-FREE</span>
-          <span className="text-terracotta-200">✦</span>
-          <span className="mx-6">ZERO-PLASTIC PACKAGING</span>
-          <span className="text-terracotta-200">✦</span>
+      {/* Artisanal Studio Scrolling Marquee Ribbon */}
+      <div className="relative z-20 w-full bg-clay-950 text-cream-100 py-3 sm:py-3.5 border-y-2 border-terracotta-500/40 overflow-hidden shadow-xl landing-marquee-ribbon">
+        <div className="landing-marquee-ribbon-track text-xs sm:text-sm font-bold tracking-widest uppercase flex items-center text-cream-200">
+          <div className="flex items-center gap-6 sm:gap-8 px-4 whitespace-nowrap">
+            <span className="text-terracotta-300">🏺 Handcrafted Stoneware</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-emerald-300">🌿 100% Lead-Free & Food-Safe</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-amber-300">🔥 High-Fired at 1200°C</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-cream-100">📦 Pan-India Free Delivery Above ₹{config.freeShippingThreshold.toLocaleString()}</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-ochre-400">✨ Special Offer: {config.promoDiscountPercent}% OFF with {config.promoCode}</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-clay-300">☕ Microwave & Dishwasher Safe</span>
+            <span className="text-terracotta-400">✦</span>
+          </div>
+          <div className="flex items-center gap-6 sm:gap-8 px-4 whitespace-nowrap">
+            <span className="text-terracotta-300">🏺 Handcrafted Stoneware</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-emerald-300">🌿 100% Lead-Free & Food-Safe</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-amber-300">🔥 High-Fired at 1200°C</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-cream-100">📦 Pan-India Free Delivery Above ₹{config.freeShippingThreshold.toLocaleString()}</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-ochre-400">✨ Special Offer: {config.promoDiscountPercent}% OFF with {config.promoCode}</span>
+            <span className="text-terracotta-400">✦</span>
+            <span className="text-clay-300">☕ Microwave & Dishwasher Safe</span>
+            <span className="text-terracotta-400">✦</span>
+          </div>
         </div>
       </div>
 

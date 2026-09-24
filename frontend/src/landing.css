@@ -17,49 +17,6 @@
   overflow-x: hidden;
 }
 
-/* ============ LANDING ANNOUNCEMENT MARQUEE ============ */
-@keyframes landing-marquee {
-  0% {
-    transform: translateX(0%);
-  }
-  100% {
-    transform: translateX(-50%);
-  }
-}
-
-.landing-marquee-track {
-  display: flex;
-  width: max-content;
-  white-space: nowrap;
-  animation: landing-marquee 36s linear infinite;
-  will-change: transform;
-}
-
-.landing-marquee-track:hover {
-  animation-play-state: paused;
-}
-
-@keyframes landing-marquee-reverse {
-  0% {
-    transform: translateX(-50%);
-  }
-  100% {
-    transform: translateX(0%);
-  }
-}
-
-.landing-marquee-track-reverse {
-  display: flex;
-  width: max-content;
-  white-space: nowrap;
-  animation: landing-marquee-reverse 30s linear infinite;
-  will-change: transform;
-}
-
-.landing-marquee-track-reverse:hover {
-  animation-play-state: paused;
-}
-
 /* ============ HERO ============ */
 .hero-animated {
   position: relative;
@@ -557,4 +514,57 @@
   width: 100%;
   max-width: 180px;
 }
+
+/* ============ SCROLLING ANNOUNCEMENT MARQUEE ============ */
+@keyframes landingMarquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+@keyframes landingMarqueeReverse {
+  0% {
+    transform: translate3d(-50%, 0, 0);
+  }
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+.landing-marquee-container {
+  mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 40px, black calc(100% - 40px), transparent);
+}
+
+.landing-marquee-track {
+  display: flex;
+  width: max-content;
+  animation: landingMarquee 32s linear infinite;
+  will-change: transform;
+}
+
+.landing-marquee-container:hover .landing-marquee-track,
+.landing-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+.landing-marquee-ribbon {
+  mask-image: linear-gradient(to right, transparent, black 30px, black calc(100% - 30px), transparent);
+  -webkit-mask-image: linear-gradient(to right, transparent, black 30px, black calc(100% - 30px), transparent);
+}
+
+.landing-marquee-ribbon-track {
+  display: flex;
+  width: max-content;
+  animation: landingMarquee 26s linear infinite;
+  will-change: transform;
+}
+
+.landing-marquee-ribbon:hover .landing-marquee-ribbon-track {
+  animation-play-state: paused;
+}
+
 
