@@ -61,6 +61,9 @@ export const LandingPage: React.FC = () => {
   }, [currentVideoIndex]);
 
   const handleVideoEnded = () => {
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+    }
     setCurrentVideoIndex((prevIndex) => (prevIndex + 1) % videos.length);
   };
 
@@ -331,16 +334,20 @@ export const LandingPage: React.FC = () => {
       <div className="relative h-[100dvh] w-full flex flex-col justify-end items-center overflow-hidden bg-clay-950">
 
         {/* Background Video */}
-        <div className="absolute inset-0 z-0 pointer-events-none">
-          <video
-            ref={videoRef}
-            src={videos[currentVideoIndex]}
-            autoPlay
-            muted={isMuted}
-            playsInline
-            onEnded={handleVideoEnded}
-            className="w-full h-full object-cover transition-opacity duration-1000"
-          />
+        <div className="absolute inset-0 z-0 pointer-events-none bg-[#0a0a0a]">
+          {videos.map((src, index) => (
+            <video
+              key={src}
+              ref={index === currentVideoIndex ? videoRef : null}
+              src={src}
+              muted={isMuted}
+              playsInline
+              onEnded={index === currentVideoIndex ? handleVideoEnded : undefined}
+              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                index === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+              }`}
+            />
+          ))}
         </div>
 
         {/* Audio Toggle Overlay */}
