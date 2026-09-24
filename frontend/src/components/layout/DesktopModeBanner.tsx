@@ -8,15 +8,27 @@ export const DesktopModeBanner: React.FC = () => {
   const { language } = useLanguage();
 
   useEffect(() => {
-    // Only show on mobile/tablet (< 1024px)
-    const isMobileOrTablet = window.innerWidth < 1024;
-    const isDismissed = localStorage.getItem('bnj_desktop_banner_dismissed') === 'true';
+    const checkVisibility = () => {
+      const isMobileOrTablet = window.innerWidth < 1024;
+      const isDismissed = localStorage.getItem('bnj_desktop_banner_dismissed') === 'true';
+      
+      if (isMobileOrTablet && !isDismissed) {
+        setIsVisible(true);
+      } else {
+        setIsVisible(false);
+      }
+    };
 
-    if (isMobileOrTablet && !isDismissed) {
-      // Small delay for smooth fade-in
-      const timer = setTimeout(() => setIsVisible(true), 500);
-      return () => clearTimeout(timer);
-    }
+    // Initial check with a small delay for smooth fade-in
+    const timer = setTimeout(checkVisibility, 500);
+
+    // Listen for window resize (helpful for testing on desktop)
+    window.addEventListener('resize', checkVisibility);
+    
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', checkVisibility);
+    };
   }, []);
 
   const handleDismiss = () => {
