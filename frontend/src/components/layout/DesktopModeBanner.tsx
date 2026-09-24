@@ -39,9 +39,9 @@ export const DesktopModeBanner: React.FC = () => {
   if (!isVisible) return null;
 
   const messages = {
-    en: "For the best experience, we recommend viewing Bowls 'N' Jars in desktop mode 🖥️",
-    hi: "बेहतर अनुभव के लिए, हम बॉल्स 'एन' जार को डेस्कटॉप मोड में देखने की सलाह देते हैं 🖥️",
-    te: "ఉత్తమ అనుభవం కోసం, బౌల్స్ 'ఎన్' జార్స్‌ని డెస్క్‌టాప్ మోడ్‌లో చూడమని మేము సిఫార్సు చేస్తున్నాము 🖥️"
+    en: "Best viewed in desktop mode 🖥️",
+    hi: "डेस्कटॉप मोड में सबसे अच्छा देखा गया 🖥️",
+    te: "డెస్క్‌టాప్ మోడ్‌లో ఉత్తమంగా కనిపిస్తుంది 🖥️"
   };
 
   const message = messages[language as keyof typeof messages] || messages.en;
@@ -69,6 +69,9 @@ export const DesktopModeBanner: React.FC = () => {
           <span className="px-4">{message}</span>
           <span className="px-4">{message}</span>
           <span className="px-4">{message}</span>
+          <span className="px-4">{message}</span>
+          <span className="px-4">{message}</span>
+          <span className="px-4">{message}</span>
         </div>
       </div>
       
@@ -83,10 +86,10 @@ export const DesktopModeBanner: React.FC = () => {
       <style>{`
         @keyframes marquee {
           0% { transform: translateX(0%); }
-          100% { transform: translateX(-33.3333%); }
+          100% { transform: translateX(-50%); }
         }
         .animate-marquee {
-          animation: marquee 15s linear infinite;
+          animation: marquee 8s linear infinite;
         }
       `}</style>
     </div>
