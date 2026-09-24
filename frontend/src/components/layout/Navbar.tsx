@@ -26,7 +26,8 @@ import { useLanguage } from '../../context/LanguageContext';
 import { Language } from '../../utils/translations';
 import { useFlyingCart } from '../common/FlyingCartThumbnail';
 import { AuthModal } from '../common/AuthModal';
-import { STATIC_CATEGORIES } from '../../utils/categories';
+import { productService } from '../../services/productService';
+import { Category } from '../../types';
 import { SPRING_GENTLE, LUXURY_EASE } from '../../utils/motion';
 
 export const Navbar: React.FC = () => {
@@ -56,6 +57,12 @@ export const Navbar: React.FC = () => {
     { code: 'hi', label: 'Hindi', native: 'हिन्दी' },
     { code: 'te', label: 'Telugu', native: 'తెలుగు' },
   ];
+
+  const [categories, setCategories] = useState<Category[]>([]);
+
+  useEffect(() => {
+    productService.getCategories().then(setCategories).catch(console.error);
+  }, []);
 
   // Track scroll without layout shift
   useEffect(() => {
@@ -169,7 +176,7 @@ export const Navbar: React.FC = () => {
                   <ChevronDown className="w-4 h-4 transition-transform group-hover:rotate-180" />
                 </button>
                 <div className="absolute top-full left-0 w-52 bg-white border border-sand-200 rounded-2xl shadow-warm-lg py-2 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 transform origin-top-left group-hover:translate-y-1">
-                  {STATIC_CATEGORIES.map(cat => (
+                  {categories.map(cat => (
                     <Link
                       key={cat.slug}
                       to={`/shop?category=${cat.slug}`}
@@ -538,7 +545,7 @@ export const Navbar: React.FC = () => {
 
                       {isCategoryExpanded && (
                         <div className="pl-4 pr-1 py-1 space-y-1 animate-fadeIn">
-                          {STATIC_CATEGORIES.map(cat => (
+                          {categories.map(cat => (
                             <Link
                               key={cat.slug}
                               to={`/shop?category=${cat.slug}`}
