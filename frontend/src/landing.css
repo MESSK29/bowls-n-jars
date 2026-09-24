@@ -17,6 +17,49 @@
   overflow-x: hidden;
 }
 
+/* ============ LANDING ANNOUNCEMENT MARQUEE ============ */
+@keyframes landing-marquee {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.landing-marquee-track {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  animation: landing-marquee 36s linear infinite;
+  will-change: transform;
+}
+
+.landing-marquee-track:hover {
+  animation-play-state: paused;
+}
+
+@keyframes landing-marquee-reverse {
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0%);
+  }
+}
+
+.landing-marquee-track-reverse {
+  display: flex;
+  width: max-content;
+  white-space: nowrap;
+  animation: landing-marquee-reverse 30s linear infinite;
+  will-change: transform;
+}
+
+.landing-marquee-track-reverse:hover {
+  animation-play-state: paused;
+}
+
 /* ============ HERO ============ */
 .hero-animated {
   position: relative;

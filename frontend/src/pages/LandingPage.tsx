@@ -5,7 +5,7 @@ import { useLanguage } from '../context/LanguageContext';
 import { useStoreConfigStore } from '../stores/storeConfigStore';
 import { AuthModal } from '../components/common/AuthModal';
 import { BowlsNJarsText } from '../components/common/BowlsNJarsText';
-import { Volume2, VolumeX, ChevronDown, ArrowRight, MapPin, Mail, Phone, Clock } from 'lucide-react';
+import { Volume2, VolumeX, ChevronDown, ArrowRight, MapPin, Mail, Phone, Clock, Sparkles } from 'lucide-react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import '../landing.css';
@@ -340,6 +340,107 @@ export const LandingPage: React.FC = () => {
       {/* SECTION 1: Full-Screen Video Background */}
       <div className="relative h-[100dvh] w-full flex flex-col justify-end items-center overflow-hidden bg-clay-950">
 
+        {/* HIGH-VISIBILITY SCROLLING ANNOUNCEMENT BAR (Desktop & Mobile) */}
+        <div className="absolute top-0 inset-x-0 z-30 bg-clay-950/85 backdrop-blur-md border-b border-terracotta-500/30 text-cream-100 py-2.5 px-3 sm:px-6 flex items-center shadow-lg overflow-hidden">
+          <div className="shrink-0 flex items-center space-x-2 mr-3 sm:mr-4 pl-1">
+            <span className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-terracotta-500 to-ochre-600 text-white font-bold text-[10px] sm:text-xs tracking-wider uppercase shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <span>STUDIO CHRONICLE</span>
+            </span>
+          </div>
+
+          <div className="flex-1 overflow-hidden relative">
+            <div className="landing-marquee-track text-xs sm:text-sm font-medium tracking-wide text-cream-200">
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">In an age of disposable speed, we craft slow beauty that lasts.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">Clay remembers the warmth of the hands that shaped it.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span>100% Pure High-Fired Stoneware (1200°C) • Certified Lead-Free &amp; Food-Safe</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">Every vessel is born of earth, water, and fire for your mindful daily rituals.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span>Direct fair-trade partnership with master potter guilds of Jaipur &amp; Khurja</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">Tactile living begins with the objects you hold each day.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              {/* Duplicate track for seamless infinite marquee loop */}
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">In an age of disposable speed, we craft slow beauty that lasts.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">Clay remembers the warmth of the hands that shaped it.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span>100% Pure High-Fired Stoneware (1200°C) • Certified Lead-Free &amp; Food-Safe</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">Every vessel is born of earth, water, and fire for your mindful daily rituals.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span>Direct fair-trade partnership with master potter guilds of Jaipur &amp; Khurja</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+
+              <span className="mx-4 sm:mx-6 flex items-center space-x-2">
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">“</span>
+                <span className="font-serif italic text-cream-100">Tactile living begins with the objects you hold each day.</span>
+                <span className="text-terracotta-400 font-serif italic text-base sm:text-lg">”</span>
+              </span>
+              <span className="text-terracotta-400/80">✦</span>
+            </div>
+          </div>
+
+          <div className="shrink-0 ml-3 sm:ml-4">
+            <button
+              onClick={() => setIsAuthModalOpen(true)}
+              className="hidden sm:inline-flex items-center space-x-1.5 px-3.5 py-1.5 rounded-full bg-white/10 hover:bg-terracotta-500 border border-white/20 hover:border-terracotta-400 text-cream-100 text-xs font-semibold transition-all shadow-sm group"
+            >
+              <span>Enter Shop</span>
+              <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </button>
+          </div>
+        </div>
+
         {/* Background Video */}
         <div className="absolute inset-0 z-0 pointer-events-none bg-[#0a0a0a]">
           {videos.map((src, index) => (
@@ -387,6 +488,38 @@ export const LandingPage: React.FC = () => {
           </button>
         </div>
 
+      </div>
+
+      {/* TRANSITION EDITORIAL TICKER RIBBON */}
+      <div className="bg-gradient-to-r from-terracotta-600 via-terracotta-500 to-terracotta-700 text-cream-50 py-3 sm:py-3.5 border-y-2 border-terracotta-400/60 overflow-hidden shadow-warm-md relative z-10">
+        <div className="landing-marquee-track text-xs sm:text-sm font-bold tracking-[0.2em] uppercase font-sans">
+          <span className="mx-6">SLOW LIVING</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">WHEEL THROWN BY MASTER POTTERS</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">HIGH-FIRED 1200°C STONEWARE</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">JAIPUR &amp; KHURJA HERITAGE</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">100% NON-TOXIC &amp; LEAD-FREE</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">ZERO-PLASTIC PACKAGING</span>
+          <span className="text-terracotta-200">✦</span>
+
+          {/* Duplicated track for continuous scroll */}
+          <span className="mx-6">SLOW LIVING</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">WHEEL THROWN BY MASTER POTTERS</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">HIGH-FIRED 1200°C STONEWARE</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">JAIPUR &amp; KHURJA HERITAGE</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">100% NON-TOXIC &amp; LEAD-FREE</span>
+          <span className="text-terracotta-200">✦</span>
+          <span className="mx-6">ZERO-PLASTIC PACKAGING</span>
+          <span className="text-terracotta-200">✦</span>
+        </div>
       </div>
 
       {/* SECTION 2: GSAP ANIMATED CONTENT */}
