@@ -368,7 +368,7 @@ export const ProductDetailPage: React.FC = () => {
           <div className="pt-4 border-t border-sand-200 space-y-2 text-xs text-clay-600">
             <div className="flex items-center space-x-2">
               <Truck className="w-4 h-4 text-terracotta-500" />
-              <span>Complimentary shipping on orders over $60</span>
+              <span>Complimentary shipping on orders over ₹4,999</span>
             </div>
             <div className="flex items-center space-x-2">
               <ShieldCheck className="w-4 h-4 text-sage-600" />
