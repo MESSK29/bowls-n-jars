@@ -1,14 +1,14 @@
-import os
-from pydantic_settings import BaseSettings
+
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     PROJECT_NAME: str = "Bowls 'N' Jars API"
     PROJECT_VERSION: str = "1.0.0"
     API_V1_STR: str = "/api"
-    SECRET_KEY: str = os.getenv("SECRET_KEY", "super-secret-bowls-n-jars-key-2026-artisanal")
+    SECRET_KEY: str = "super-secret-bowls-n-jars-key-2026-artisanal"
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7  # 7 days
-    DATABASE_URL: str = os.getenv("DATABASE_URL", "sqlite:///./bowlsnjars.db")
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 7
+    DATABASE_URL: str = "sqlite:///./bowlsnjars.db"
     CORS_ORIGINS: list[str] = [
         "http://localhost:5173",
         "http://localhost:3000",
@@ -17,7 +17,9 @@ class Settings(BaseSettings):
         "https://bowlsnjars.vercel.app"
     ]
 
-    class Config:
-        case_sensitive = True
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        case_sensitive=True
+    )
 
 settings = Settings()
