@@ -1,0 +1,82 @@
+import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
+import { useLanguage } from '../../context/LanguageContext';
+
+export const DesktopModeBanner: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  const { language } = useLanguage();
+
+  useEffect(() => {
+    // Only show on mobile/tablet (< 1024px)
+    const isMobileOrTablet = window.innerWidth < 1024;
+    const isDismissed = localStorage.getItem('bnj_desktop_banner_dismissed') === 'true';
+
+    if (isMobileOrTablet && !isDismissed) {
+      // Small delay for smooth fade-in
+      const timer = setTimeout(() => setIsVisible(true), 500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
+  const handleDismiss = () => {
+    setIsVisible(false);
+    localStorage.setItem('bnj_desktop_banner_dismissed', 'true');
+  };
+
+  if (!isVisible) return null;
+
+  const messages = {
+    en: "For the best experience, we recommend viewing Bowls 'N' Jars in desktop mode 🖥️",
+    hi: "बेहतर अनुभव के लिए, हम बॉल्स 'एन' जार को डेस्कटॉप मोड में देखने की सलाह देते हैं 🖥️",
+    te: "ఉత్తమ అనుభవం కోసం, బౌల్స్ 'ఎన్' జార్స్‌ని డెస్క్‌టాప్ మోడ్‌లో చూడమని మేము సిఫార్సు చేస్తున్నాము 🖥️"
+  };
+
+  const message = messages[language as keyof typeof messages] || messages.en;
+
+  return (
+    <div 
+      className={`
+        lg:hidden w-full bg-terracotta-600 dark:bg-clay-900 text-white 
+        h-9 sm:h-10 flex items-center justify-between relative z-[90] overflow-hidden
+        transition-all duration-500 ease-in-out border-b border-terracotta-700/50 dark:border-clay-800
+        ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full'}
+      `}
+      onTouchStart={() => setIsHovered(true)}
+      onTouchEnd={() => setIsHovered(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
+      <div className="flex-1 overflow-hidden relative h-full flex items-center pr-12">
+        <div 
+          className={`flex whitespace-nowrap font-medium text-[11px] sm:text-xs tracking-wide
+            ${isHovered ? '[animation-play-state:paused]' : 'animate-marquee'}
+            motion-reduce:animate-none motion-reduce:whitespace-normal motion-reduce:text-center motion-reduce:w-full
+          `}
+        >
+          <span className="px-4">{message}</span>
+          <span className="px-4">{message}</span>
+          <span className="px-4">{message}</span>
+        </div>
+      </div>
+      
+      <button 
+        onClick={handleDismiss}
+        className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-full text-white/80 hover:text-white hover:bg-white/10 active:scale-95 transition-all z-10 bg-terracotta-600 dark:bg-clay-900"
+        aria-label="Dismiss banner"
+      >
+        <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+      </button>
+
+      <style>{`
+        @keyframes marquee {
+          0% { transform: translateX(0%); }
+          100% { transform: translateX(-33.3333%); }
+        }
+        .animate-marquee {
+          animation: marquee 15s linear infinite;
+        }
+      `}</style>
+    </div>
+  );
+};

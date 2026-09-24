@@ -9,6 +9,7 @@ import { FlyingCartProvider } from './components/common/FlyingCartThumbnail';
 import { ToastProvider } from './components/common/Toast';
 import { LanguageProvider } from './context/LanguageContext';
 import { pageVariants } from './utils/motion';
+import { DesktopModeBanner } from './components/layout/DesktopModeBanner';
 import { ProtectedRoute } from './components/layout/ProtectedRoute';
 
 import { LandingPage } from './pages/LandingPage';
@@ -51,6 +52,8 @@ export function App() {
                 <CartDrawer />
               </>
             )}
+
+            <DesktopModeBanner />
 
             <main className="flex-1 overflow-x-hidden">
               <AnimatePresence mode="wait">
