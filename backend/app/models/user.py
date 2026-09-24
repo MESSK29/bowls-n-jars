@@ -7,11 +7,11 @@ class User(Base):
     __tablename__ = "users"
 
     id = Column(Integer, primary_key=True, index=True)
-    email = Column(String(255), unique=True, index=True, nullable=False)
+    email = Column(String(255), unique=True, index=True, nullable=True)
     hashed_password = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=False)
     role = Column(String(50), default="customer")  # "customer" or "admin"
-    phone = Column(String(50), nullable=True)
+    phone = Column(String(50), unique=True, index=True, nullable=True)
     address_json = Column(Text, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
 

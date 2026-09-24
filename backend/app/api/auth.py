@@ -10,15 +10,26 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=Token, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
-    existing = db.query(User).filter(User.email == user_in.email.lower()).first()
-    if existing:
+    if not user_in.phone:
+        raise HTTPException(status_code=400, detail="Mobile number is required")
+        
+    existing_phone = db.query(User).filter(User.phone == user_in.phone).first()
+    if existing_phone:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="A user with this email already exists"
+            detail="A user with this mobile number already exists"
         )
+        
+    if user_in.email:
+        existing_email = db.query(User).filter(User.email == user_in.email.lower()).first()
+        if existing_email:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="A user with this email already exists"
+            )
     
     user = User(
-        email=user_in.email.lower(),
+        email=user_in.email.lower() if user_in.email else None,
         hashed_password=get_password_hash(user_in.password),
         full_name=user_in.full_name,
         phone=user_in.phone,
@@ -38,11 +49,22 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
 
 @router.post("/login", response_model=Token)
 def login(login_data: UserLogin, db: Session = Depends(get_db)):
-    user = db.query(User).filter(User.email == login_data.email.lower()).first()
-    if not user or not verify_password(login_data.password, user.hashed_password):
+    identifier = login_data.identifier.strip()
+    is_email = "@" in identifier
+    
+    if is_email:
+        user = db.query(User).filter(User.email == identifier.lower()).first()
+        if not user:
+            raise HTTPException(status_code=401, detail="Email is not registered")
+    else:
+        user = db.query(User).filter(User.phone == identifier).first()
+        if not user:
+            raise HTTPException(status_code=401, detail="Mobile number is not registered")
+            
+    if not verify_password(login_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Incorrect email or password",
+            detail="Enter correct password",
             headers={"WWW-Authenticate": "Bearer"},
         )
     

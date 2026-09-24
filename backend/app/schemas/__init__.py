@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr
 
 # Auth & User Schemas
 class UserBase(BaseModel):
-    email: EmailStr
+    email: Optional[EmailStr] = None
     full_name: str
     phone: Optional[str] = None
     address_json: Optional[str] = None
@@ -13,7 +13,7 @@ class UserCreate(UserBase):
     password: str
 
 class UserLogin(BaseModel):
-    email: EmailStr
+    identifier: str
     password: str
 
 class UserResponse(UserBase):

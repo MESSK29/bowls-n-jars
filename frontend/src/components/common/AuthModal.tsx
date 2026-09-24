@@ -16,7 +16,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   defaultTab = 'login',
 }) => {
   const [isActive, setIsActive] = useState(defaultTab === 'register');
-  const [email, setEmail] = useState('');
+  const [identifier, setIdentifier] = useState('');
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
@@ -31,7 +32,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     e.preventDefault();
     setFormError(null);
     try {
-      await login(email, password);
+      await login(identifier, password);
       onClose();
     } catch (err: any) {
       setFormError(err.message || 'Login failed');
@@ -43,7 +44,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     setFormError(null);
     try {
       await register({
-        email,
+        phone,
         password,
         full_name: fullName,
       });
@@ -89,14 +90,14 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           <div className="flex space-x-2 mt-4 mb-2 animation" style={styleWithVars(0.7, 21.7)}>
             <button 
-              onClick={() => { setEmail('admin@bowlsnjars.com'); setPassword('admin123'); }}
+              onClick={() => { setIdentifier('admin@bowlsnjars.com'); setPassword('admin123'); }}
               className="flex-1 py-1.5 px-3 bg-terracotta-500/20 hover:bg-terracotta-500/40 border border-terracotta-500/30 rounded-lg text-xs text-terracotta-200 transition-colors"
               type="button"
             >
               Test Admin
             </button>
             <button 
-              onClick={() => { setEmail('customer@bowlsnjars.com'); setPassword('customer123'); }}
+              onClick={() => { setIdentifier('customer@bowlsnjars.com'); setPassword('customer123'); }}
               className="flex-1 py-1.5 px-3 bg-sage-500/20 hover:bg-sage-500/40 border border-sage-500/30 rounded-lg text-xs text-sage-200 transition-colors"
               type="button"
             >
@@ -106,8 +107,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
           <form onSubmit={handleLogin}>
             <div className="input-box auth-input-box animation" style={styleWithVars(1, 22)}>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-              <label>{t('auth.email', 'Email Address')}</label>
+              <input type="text" required value={identifier} onChange={(e) => setIdentifier(e.target.value)} />
+              <label>Mobile Number / Email</label>
               <Mail className="w-4 h-4 absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70" />
             </div>
             <div className="input-box auth-input-box animation" style={styleWithVars(2, 23)}>
@@ -154,8 +155,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <UserIcon className="w-4 h-4 absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70" />
             </div>
             <div className="input-box auth-input-box animation" style={styleWithVars(19, 2)}>
-              <input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} />
-              <label>{t('auth.email', 'Email')}</label>
+              <input type="tel" required value={phone} onChange={(e) => setPhone(e.target.value)} />
+              <label>Mobile Number</label>
               <Mail className="w-4 h-4 absolute top-1/2 right-0 -translate-y-1/2 text-cream-50/70" />
             </div>
             <div className="input-box auth-input-box animation" style={styleWithVars(20, 3)}>
