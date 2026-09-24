@@ -277,39 +277,49 @@ export const LandingPage: React.FC = () => {
       rafId = requestAnimationFrame(parallax);
     }
 
-    // Card Hover 3D Logic - desktop only
+    // Card Hover Logic - Desktop only (Elegant, organic 'flower opening' effect)
     const animCards = containerRef.current?.querySelectorAll('.anim-card');
-    const onCardMove = (e: Event, card: HTMLElement) => {
-      const mouseEvent = e as MouseEvent;
-      const r = card.getBoundingClientRect();
-      const px = (mouseEvent.clientX - r.left) / r.width - 0.5;
-      const py = (mouseEvent.clientY - r.top) / r.height - 0.5;
-      gsap.to(card, {
-        rotateX: -py * 16,
-        rotateY: px * 16,
+    
+    const onCardEnter = (card: HTMLElement) => {
+      const img = card.querySelector('img');
+      if (!img) return;
+      
+      // Bring container to front
+      gsap.set(card, { zIndex: 20 });
+      
+      // 'Bloom' effect on the image itself, avoiding conflict with container's float animation
+      gsap.to(img, {
         scale: 1.12,
-        zIndex: 20,
-        duration: 0.4,
-        ease: "power2.out",
-        transformPerspective: 700,
-        overwrite: "auto"
-      });
-    };
-    const onCardLeave = (card: HTMLElement) => {
-      gsap.to(card, {
-        rotateX: 0,
-        rotateY: 0,
-        scale: 1,
-        zIndex: card.style.zIndex || "",
+        rotation: 3,
+        y: -10,
         duration: 0.8,
-        ease: "elastic.out(1, 0.6)",
+        ease: "power3.out",
         overwrite: "auto"
       });
     };
+    
+    const onCardLeave = (card: HTMLElement) => {
+      const img = card.querySelector('img');
+      if (!img) return;
+      
+      // 'Close' effect
+      gsap.to(img, {
+        scale: 1,
+        rotation: 0,
+        y: 0,
+        duration: 0.9,
+        ease: "power2.inOut",
+        overwrite: "auto",
+        onComplete: () => {
+          gsap.set(card, { zIndex: 1 });
+        }
+      });
+    };
+
     if (isFinePointer && animCards) {
       animCards.forEach((c) => {
         const card = c as HTMLElement;
-        card.addEventListener('mousemove', (e) => onCardMove(e, card));
+        card.addEventListener('mouseenter', () => onCardEnter(card));
         card.addEventListener('mouseleave', () => onCardLeave(card));
       });
     }
@@ -326,7 +336,7 @@ export const LandingPage: React.FC = () => {
       if (animCards) {
         animCards.forEach((c) => {
           const card = c as HTMLElement;
-          card.removeEventListener('mousemove', (e) => onCardMove(e, card));
+          card.removeEventListener('mouseenter', () => onCardEnter(card));
           card.removeEventListener('mouseleave', () => onCardLeave(card));
         });
       }
