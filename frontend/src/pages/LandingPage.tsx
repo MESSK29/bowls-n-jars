@@ -342,19 +342,24 @@ export const LandingPage: React.FC = () => {
 
         {/* Background Video */}
         <div className="absolute inset-0 z-0 pointer-events-none bg-[#0a0a0a]">
-          {videos.map((src, index) => (
-            <video
-              key={src}
-              ref={index === currentVideoIndex ? videoRef : null}
-              src={src}
-              muted={isMuted}
-              playsInline
-              onEnded={index === currentVideoIndex ? handleVideoEnded : undefined}
-              className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
-                index === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
-              }`}
-            />
-          ))}
+          {videos.map((src, index) => {
+            const mobileSrc = src.replace('.mp4', '_mobile.mp4');
+            return (
+              <video
+                key={src}
+                ref={index === currentVideoIndex ? videoRef : null}
+                muted={isMuted}
+                playsInline
+                onEnded={index === currentVideoIndex ? handleVideoEnded : undefined}
+                className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-1000 ${
+                  index === currentVideoIndex ? 'opacity-100 z-10' : 'opacity-0 z-0'
+                }`}
+              >
+                <source src={mobileSrc} media="(max-width: 767px)" />
+                <source src={src} media="(min-width: 768px)" />
+              </video>
+            );
+          })}
         </div>
 
         {/* Audio Toggle Overlay */}
