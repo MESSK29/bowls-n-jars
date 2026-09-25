@@ -30,48 +30,75 @@ class CustomerImageService:
             raise Exception(f"OCR failed to process the image. Error: {str(e)}")
             
         # Parse text for Name and Phone
-        # Phone: looking for 10 digits (ignoring spaces/dashes)
-        phone_matches = re.findall(r'(?:(?:\+|0{0,2})91[\s-]?)?[6-9]\d{2}[\s-]?\d{3}[\s-]?\d{4}', extracted_text)
-        
-        # We will try to find potential names (lines of text that don't look like purely numbers)
+        phone_regex = r'(?:(?:\+|0{0,2})91[\s-]?)?[6-9]\d{2}[\s-]?\d{3}[\s-]?\d{4}'
         lines = [line.strip() for line in extracted_text.split('\n') if line.strip()]
         
         customers = []
+        unmatched_phones = []
+        unmatched_names = []
         
-        if phone_matches:
-            # Clean up phones
-            phones = list(set([re.sub(r'[\s\-\+]', '', p)[-10:] for p in phone_matches]))
+        # First pass: try to find phone numbers on each line
+        for line in lines:
+            phone_matches = re.findall(phone_regex, line)
             
-            for i, phone in enumerate(phones):
-                # Try to guess a name from the lines (this is very basic heuristic)
-                guessed_name = ""
-                for line in lines:
-                    if len(line) > 3 and not any(char.isdigit() for char in line):
-                        guessed_name = line
-                        # Remove it so we don't reuse it
-                        lines.remove(line)
-                        break
+            if phone_matches:
+                # Process the first phone number found on the line
+                raw_phone = phone_matches[0]
+                phone = re.sub(r'[\s\-\+]', '', raw_phone)[-10:]
                 
+                # Check if there is a name on the same line
+                name_part = line.replace(raw_phone, '').strip()
+                name_part = re.sub(r'[^\w\s]', '', name_part).strip() # clean punctuation
+                
+                # If a valid name is on the same line
+                if len(name_part) >= 2 and not any(c.isdigit() for c in name_part):
+                    customers.append({
+                        "name": name_part,
+                        "phone_number": phone,
+                        "extraction_status": "Success"
+                    })
+                else:
+                    unmatched_phones.append(phone)
+            else:
+                # Potential name line (no phone number found here)
+                clean_name = re.sub(r'[^\w\s]', '', line).strip()
+                # Must be at least 2 characters (e.g. "Om", "Bo") and contain no digits
+                if len(clean_name) >= 2 and not any(c.isdigit() for c in clean_name):
+                    unmatched_names.append(clean_name)
+                    
+        # Second pass: pair up unmatched phones and names sequentially
+        for phone in unmatched_phones:
+            if unmatched_names:
+                name = unmatched_names.pop(0)
                 customers.append({
-                    "name": guessed_name if guessed_name else "Could not identify customer name",
+                    "name": name,
                     "phone_number": phone,
-                    "extraction_status": "Success" if guessed_name else "Partial"
+                    "extraction_status": "Success"
                 })
-        else:
-            # Missing phone
-            guessed_name = ""
-            if lines:
-                for line in lines:
-                    if len(line) > 3 and not any(char.isdigit() for char in line):
-                        guessed_name = line
-                        break
-            
+            else:
+                customers.append({
+                    "name": "Could not identify customer name",
+                    "phone_number": phone,
+                    "extraction_status": "Partial"
+                })
+                
+        # If there are leftover names with no phones
+        for name in unmatched_names:
             customers.append({
-                "name": guessed_name if guessed_name else "Unknown Customer",
+                "name": name,
                 "phone_number": "Could not identify phone number",
                 "extraction_status": "Partial"
             })
             
-        return customers
+        # Deduplicate by phone
+        seen_phones = set()
+        unique_customers = []
+        for c in customers:
+            if c["phone_number"] not in seen_phones or c["phone_number"] == "Could not identify phone number":
+                unique_customers.append(c)
+                if c["phone_number"] != "Could not identify phone number":
+                    seen_phones.add(c["phone_number"])
+                    
+        return unique_customers
 
 customer_image_service = CustomerImageService()
