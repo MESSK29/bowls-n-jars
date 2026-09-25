@@ -17,9 +17,16 @@ class Settings(BaseSettings):
         "https://bowlsnjars.vercel.app"
     ]
 
+    # Google Sheets Configuration
+    GOOGLE_APPS_SCRIPT_URL: str | None = None
+    GOOGLE_SHEETS_SPREADSHEET_ID: str | None = None
+    GOOGLE_SERVICE_ACCOUNT_CREDENTIALS: str | None = None
+    GOOGLE_APPLICATION_CREDENTIALS: str | None = None
+
     model_config = SettingsConfigDict(
         env_file=".env",
-        case_sensitive=True
+        case_sensitive=True,
+        extra="ignore"
     )
 
 settings = Settings()

@@ -15,8 +15,6 @@ from app.schemas.customer_call import (
 )
 from app.core.deps import get_current_admin
 
-# Note: The real services will replace these placeholders
-from .mock_services import generate_google_doc
 from app.services.customer_image_service import customer_image_service
 from app.services.call_processor import process_batch_background
 
