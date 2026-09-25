@@ -21,8 +21,8 @@ def crop_center(video_path, output_path, target_ratio=9/16):
         y2 = y_center + new_h / 2
         cropped_clip = clip.cropped(x1=0, y1=y1, x2=w, y2=y2)
 
-    # Remove audio if you want to keep file size small, or just write
-    cropped_clip.write_videofile(output_path, codec="libx264", audio=False)
+    # Write with audio using an appropriate codec
+    cropped_clip.write_videofile(output_path, codec="libx264", audio_codec="aac")
 
 if __name__ == "__main__":
     crop_center("f:/bowls n jars/frontend/public/videos/video1.mp4", "f:/bowls n jars/frontend/public/videos/video1_mobile.mp4")
