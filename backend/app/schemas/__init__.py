@@ -2,6 +2,11 @@ from datetime import datetime
 from typing import Optional, List, Any
 from pydantic import BaseModel, EmailStr
 
+from .customer_call import (
+    CustomerCallBase, CustomerCallCreate, CustomerCallUpdate, CustomerCallResponse,
+    CallBatchBase, CallBatchCreate, CallBatchResponse, CallBatchSummary, ExtractionResponse
+)
+
 # Auth & User Schemas
 class UserBase(BaseModel):
     email: Optional[EmailStr] = None

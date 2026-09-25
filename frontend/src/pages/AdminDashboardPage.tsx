@@ -20,8 +20,12 @@ import {
   TrendingUp,
   CheckCircle2,
   ExternalLink,
-  Sparkles
+  Sparkles,
+  PhoneCall,
+  MessageSquareText
 } from 'lucide-react';
+import { CustomerCallsTab } from '../components/admin/CustomerCallsTab';
+import { CustomerCallFeedbackTab } from '../components/admin/CustomerCallFeedbackTab';
 import { price } from '../utils/currency';
 import { useAuthStore } from '../stores/authStore';
 import { useStoreConfigStore } from '../stores/storeConfigStore';
@@ -31,7 +35,7 @@ import { AdminStats, Order, Product, Category } from '../types';
 import { AuthModal } from '../components/common/AuthModal';
 import { useToast } from '../components/common/Toast';
 
-type AdminTab = 'overview' | 'orders' | 'products' | 'customizer';
+type AdminTab = 'overview' | 'orders' | 'products' | 'customer-calls' | 'call-feedback' | 'customizer';
 
 export const AdminDashboardPage: React.FC = () => {
   const { isAuthenticated, isAdmin } = useAuthStore();
@@ -423,6 +427,30 @@ export const AdminDashboardPage: React.FC = () => {
               >
                 <Sliders className="w-4 h-4" />
                 <span>Website Customizer</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('customer-calls')}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 ${
+                  activeTab === 'customer-calls'
+                    ? 'bg-terracotta-500 text-white shadow-md font-bold'
+                    : 'text-clay-500 hover:text-clay-900 hover:bg-white'
+                }`}
+              >
+                <PhoneCall className="w-4 h-4" />
+                <span>Customer Calls</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab('call-feedback')}
+                className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center space-x-2 transition-all shrink-0 ${
+                  activeTab === 'call-feedback'
+                    ? 'bg-terracotta-500 text-white shadow-md font-bold'
+                    : 'text-clay-500 hover:text-clay-900 hover:bg-white'
+                }`}
+              >
+                <MessageSquareText className="w-4 h-4" />
+                <span>Call Feedback</span>
               </button>
             </nav>
           </div>
@@ -1159,6 +1187,12 @@ export const AdminDashboardPage: React.FC = () => {
 
           </div>
         )}
+
+        {/* CUSTOMER CALLS TAB */}
+        {activeTab === 'customer-calls' && <CustomerCallsTab />}
+
+        {/* CALL FEEDBACK TAB */}
+        {activeTab === 'call-feedback' && <CustomerCallFeedbackTab />}
 
       </main>
 
