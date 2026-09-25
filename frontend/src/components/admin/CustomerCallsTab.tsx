@@ -16,6 +16,7 @@ interface EditableCustomer extends CustomerCall {
 export const CustomerCallsTab: React.FC = () => {
     const [summary, setSummary] = useState<CallSummary | null>(null);
     const [images, setImages] = useState<File[]>([]);
+    const [imageUrls, setImageUrls] = useState<string[]>([]);
     const [customers, setCustomers] = useState<EditableCustomer[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
@@ -59,6 +60,12 @@ export const CustomerCallsTab: React.FC = () => {
         
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        return () => {
+            imageUrls.forEach(url => URL.revokeObjectURL(url));
+        };
+    }, [imageUrls]);
 
     // Validate a single phone number
     const validatePhone = (phone: string): boolean => {
@@ -120,7 +127,9 @@ export const CustomerCallsTab: React.FC = () => {
             return;
         }
         
-        setImages(prev => [...prev, ...validFiles].slice(0, 3));
+        const newFiles = validFiles.slice(0, 3 - images.length);
+        setImages(prev => [...prev, ...newFiles]);
+        setImageUrls(prev => [...prev, ...newFiles.map(f => URL.createObjectURL(f))]);
     };
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,6 +159,10 @@ export const CustomerCallsTab: React.FC = () => {
 
     const removeImage = (index: number) => {
         setImages(prev => prev.filter((_, i) => i !== index));
+        setImageUrls(prev => {
+            URL.revokeObjectURL(prev[index]);
+            return prev.filter((_, i) => i !== index);
+        });
     };
 
     const handleExtract = async () => {
@@ -195,6 +208,8 @@ export const CustomerCallsTab: React.FC = () => {
             await callService.startCallBatch(batch.id);
             setCustomers([]);
             setImages([]);
+            imageUrls.forEach(url => URL.revokeObjectURL(url));
+            setImageUrls([]);
             await loadActiveBatch();
         } catch (err: any) {
             setError(err.response?.data?.detail || "Failed to start calls.");
@@ -317,7 +332,7 @@ export const CustomerCallsTab: React.FC = () => {
                             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                                 {images.map((file, idx) => (
                                     <div key={idx} className="relative group border border-sand-200 rounded-xl overflow-hidden bg-cream-200 aspect-video flex items-center justify-center">
-                                        <ImageIcon className="w-8 h-8 text-clay-300" />
+                                        <img src={imageUrls[idx]} alt={file.name} className="object-cover w-full h-full" />
                                         <button 
                                             onClick={(e) => { e.stopPropagation(); removeImage(idx); }}
                                             className="absolute top-2 right-2 bg-white/90 p-1.5 rounded-full text-red-500 hover:bg-red-50 transition-colors shadow-sm"
