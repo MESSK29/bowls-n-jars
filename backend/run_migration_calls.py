@@ -7,6 +7,11 @@ load_dotenv()
 DATABASE_URL = os.getenv("DATABASE_URL")
 print(f"Connecting to {DATABASE_URL[:30]}...")
 
+if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
+if DATABASE_URL and DATABASE_URL.startswith("postgresql://"):
+    DATABASE_URL = DATABASE_URL.replace("postgresql://", "postgresql+psycopg2://", 1)
+
 engine = create_engine(DATABASE_URL)
 with engine.begin() as conn:
     print("Running migration for calls...")
