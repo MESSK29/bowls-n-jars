@@ -351,7 +351,7 @@ export const LandingPage: React.FC = () => {
       <div className="relative h-[100dvh] w-full flex flex-col justify-end items-center overflow-hidden bg-clay-950">
 
         {/* Background Video */}
-        <div className="absolute inset-0 z-0 pointer-events-none bg-[#0a0a0a]">
+        <div className="absolute inset-0 z-0 pointer-events-none bg-clay-950">
           {videos.map((src, index) => {
             return (
               <video
