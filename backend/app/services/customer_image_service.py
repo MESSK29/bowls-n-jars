@@ -22,8 +22,9 @@ class CustomerImageService:
         try:
             # Configure pytesseract path if needed on Windows (e.g., C:\\Program Files\\Tesseract-OCR\\tesseract.exe)
             # but usually it relies on the system PATH.
+            # PSM 6 forces Tesseract to assume a single uniform block of text, preventing it from dropping columns in tables
             image = Image.open(file_path)
-            extracted_text = pytesseract.image_to_string(image)
+            extracted_text = pytesseract.image_to_string(image, config='--psm 6')
             logger.info(f"Extracted text from {filename}: {extracted_text}")
         except Exception as e:
             logger.error(f"OCR Error on {filename}: {e}")
