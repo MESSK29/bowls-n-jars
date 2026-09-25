@@ -75,7 +75,18 @@ export const CustomerCallFeedbackTab: React.FC = () => {
     return (
         <div className="space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Customer Call Feedback</h2>
+                <div className="flex items-center gap-4">
+                    <h2 className="text-xl font-bold text-gray-900">Customer Call Feedback</h2>
+                    <a 
+                        href="https://docs.google.com/spreadsheets/d/1PVNheYY0oJ943t8u6EX_tCghzb_gylIWBCYLihHyN0Y/edit"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2 bg-green-50 text-green-700 px-4 py-2 rounded-lg font-bold hover:bg-green-100 transition-colors shadow-sm text-sm"
+                    >
+                        <FileText className="w-4 h-4" />
+                        Open Master Sheet
+                    </a>
+                </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                     <div className="relative flex-1 sm:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />

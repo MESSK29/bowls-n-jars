@@ -17,7 +17,18 @@ export const CustomerCallsTab: React.FC = () => {
     const [summary, setSummary] = useState<CallSummary | null>(null);
     const [images, setImages] = useState<File[]>([]);
     const [imageUrls, setImageUrls] = useState<string[]>([]);
-    const [customers, setCustomers] = useState<EditableCustomer[]>([]);
+    const [customers, setCustomers] = useState<EditableCustomer[]>(() => {
+        try {
+            const saved = localStorage.getItem('bowlsnjars_extracted_customers');
+            return saved ? JSON.parse(saved) : [];
+        } catch {
+            return [];
+        }
+    });
+
+    useEffect(() => {
+        localStorage.setItem('bowlsnjars_extracted_customers', JSON.stringify(customers));
+    }, [customers]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
     const [activeBatch, setActiveBatch] = useState<CallBatch | null>(null);
@@ -377,14 +388,26 @@ export const CustomerCallsTab: React.FC = () => {
                                 <h3 className="text-lg font-bold text-clay-900">Review Extracted Customers</h3>
                                 <p className="text-sm text-clay-500 mt-1">Found {customers.length} customers. Please verify details.</p>
                             </div>
-                            <button 
-                                onClick={handleStartCalls}
-                                disabled={isStarting || validSelectedCount === 0}
-                                className="bg-sage-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-sage-500 shadow-md disabled:opacity-60 flex items-center justify-center gap-2 transition-all"
-                            >
-                                {isStarting ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-current" />}
-                                {isStarting ? "Starting..." : `Start ${validSelectedCount} Calls`}
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <button 
+                                    onClick={() => {
+                                        setCustomers([]);
+                                        localStorage.removeItem('bowlsnjars_extracted_customers');
+                                        setImages([]);
+                                    }}
+                                    className="bg-white border border-sand-300 text-clay-700 px-4 py-2.5 rounded-xl font-bold hover:bg-cream-50 shadow-sm transition-all text-sm"
+                                >
+                                    Clear List
+                                </button>
+                                <button 
+                                    onClick={handleStartCalls}
+                                    disabled={isStarting || validSelectedCount === 0}
+                                    className="bg-sage-600 text-white px-6 py-2.5 rounded-xl font-bold hover:bg-sage-500 shadow-md disabled:opacity-60 flex items-center justify-center gap-2 transition-all"
+                                >
+                                    {isStarting ? <RefreshCw className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5 fill-current" />}
+                                    {isStarting ? "Starting..." : `Start ${validSelectedCount} Calls`}
+                                </button>
+                            </div>
                         </div>
                         <div className="overflow-x-auto">
                             <table className="w-full text-left text-sm whitespace-nowrap">
