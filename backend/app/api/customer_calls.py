@@ -164,6 +164,27 @@ def start_batch(
     
     return {"message": "Batch processing started."}
 
+@router.post("/batches/{batch_id}/cancel")
+def cancel_batch(
+    batch_id: int,
+    admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    batch = db.query(CallBatch).filter(CallBatch.id == batch_id).first()
+    if not batch:
+        raise HTTPException(status_code=404, detail="Batch not found")
+        
+    batch.status = BatchStatus.FAILED
+    for call in batch.calls:
+        if call.call_status in [CallStatus.PENDING, CallStatus.QUEUED, CallStatus.CALLING]:
+            call.call_status = CallStatus.CANCELLED
+            call.agent_notes = "Cancelled by admin"
+            call.call_outcome = CallOutcome.PENDING
+            call.call_end_time = datetime.utcnow()
+    
+    db.commit()
+    return {"message": "Batch cancelled"}
+
 @router.post("/batches/{batch_id}/google-sheet")
 def generate_google_sheet(
     batch_id: int,
