@@ -62,9 +62,9 @@ async def twilio_status_webhook(
     }
     
     outcome_mapping = {
-        "completed": CallOutcome.INTERESTED, # Or pending, assuming it connected
+        "completed": CallOutcome.PENDING,
         "busy": CallOutcome.NO_RESPONSE,
-        "failed": CallOutcome.INVALID_NUMBER,
+        "failed": CallOutcome.OTHER,
         "no-answer": CallOutcome.NO_RESPONSE,
         "canceled": CallOutcome.NO_RESPONSE
     }
