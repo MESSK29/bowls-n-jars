@@ -112,7 +112,7 @@ class RealTwilioVoiceAgent(VoiceCallAgent):
 
         if not account_sid or not auth_token:
             print("Missing Twilio credentials in environment.")
-            return "error_missing_creds"
+            raise Exception("Twilio credentials missing. Please set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.")
             
         call_url = f"{agent_base_url}/voice?name={urllib.parse.quote(customer_name)}&details={urllib.parse.quote(agent_prompt or '')}&phone={urllib.parse.quote(phone_number)}"
         
@@ -124,14 +124,17 @@ class RealTwilioVoiceAgent(VoiceCallAgent):
                     "To": phone_number,
                     "From": twilio_number,
                     "Url": call_url
-                }
+                },
+                timeout=10
             )
             response_data = response.json()
             print(f"Twilio API Response: {response_data}")
+            if response.status_code >= 400:
+                raise Exception(f"Twilio API Error: {response_data.get('message', 'Unknown Error')}")
             return response_data.get("sid", "unknown_sid")
         except Exception as e:
             print(f"Twilio API Error: {e}")
-            return "error_api"
+            raise e
             
     def get_call_status(self, call_id: str) -> str:
         return "Calling"
