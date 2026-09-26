@@ -114,14 +114,22 @@ class RealTwilioVoiceAgent(VoiceCallAgent):
         if not agent_base_url or agent_base_url == "https://your-agent.onrender.com":
             raise Exception("VOICE_AGENT_BASE_URL is not set or still set to the default placeholder in environment.")
             
-        call_url = f"{agent_base_url}/voice?name={urllib.parse.quote(customer_name)}&details={urllib.parse.quote(agent_prompt or '')}&phone={urllib.parse.quote(phone_number)}"
+        # Ensure E.164 format for Indian numbers before calling Twilio
+        formatted_phone = phone_number.strip().replace(" ", "").replace("-", "")
+        if not formatted_phone.startswith('+'):
+            if len(formatted_phone) == 10:
+                formatted_phone = f"+91{formatted_phone}"
+            elif formatted_phone.startswith('91') and len(formatted_phone) == 12:
+                formatted_phone = f"+{formatted_phone}"
+                
+        call_url = f"{agent_base_url}/voice?name={urllib.parse.quote(customer_name)}&details={urllib.parse.quote(agent_prompt or '')}&phone={urllib.parse.quote(formatted_phone)}"
         
         try:
             response = requests.post(
                 f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Calls.json",
                 auth=(account_sid, auth_token),
                 data={
-                    "To": phone_number,
+                    "To": formatted_phone,
                     "From": twilio_number,
                     "Url": call_url
                 },
