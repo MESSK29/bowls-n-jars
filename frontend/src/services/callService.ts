@@ -103,6 +103,11 @@ export const callService = {
         return response.data;
     },
 
+    cancelCallBatch: async (batchId: number): Promise<{ message: string }> => {
+        const response = await api.post(`/admin/customer-calls/batches/${batchId}/cancel`);
+        return response.data;
+    },
+
     generateGoogleSheet: async (batchId: number): Promise<{ message: string, google_sheet_url: string, google_sheet_tab_name: string }> => {
         const response = await api.post(`/admin/customer-calls/batches/${batchId}/google-sheet`);
         return response.data;

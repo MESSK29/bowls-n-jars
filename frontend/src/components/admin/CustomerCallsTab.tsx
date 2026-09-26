@@ -601,7 +601,22 @@ export const CustomerCallsTab: React.FC = () => {
                     <div className="p-5 sm:p-6 border-b border-sand-200">
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-5 gap-3">
                             <div>
-                                <h3 className="text-lg font-bold text-clay-900">{activeBatch.batch_name}</h3>
+                                <div className="flex items-center gap-3">
+                                    <h3 className="text-lg font-bold text-clay-900">{activeBatch.batch_name}</h3>
+                                    <button 
+                                        onClick={async () => {
+                                            try {
+                                                await callService.cancelCallBatch(activeBatch.id);
+                                                setActiveBatch(null);
+                                            } catch(e) {
+                                                console.error(e);
+                                            }
+                                        }}
+                                        className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200"
+                                    >
+                                        Force Cancel
+                                    </button>
+                                </div>
                                 <p className="text-sm text-clay-500 mt-1">Status: <span className="font-bold text-amber-500">{activeBatch.status}</span></p>
                             </div>
                             <div className="flex items-center gap-4 text-sm text-clay-600 bg-cream-200 px-4 py-2 rounded-xl border border-sand-200">
