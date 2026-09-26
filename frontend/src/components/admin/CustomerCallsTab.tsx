@@ -205,8 +205,8 @@ export const CustomerCallsTab: React.FC = () => {
         try {
             const dbCustomers = await callService.getCustomers();
             const editable: EditableCustomer[] = dbCustomers.map(c => ({
-                customer_name: c.full_name,
-                phone_number: c.phone,
+                customer_name: c.full_name || 'Unknown Customer',
+                phone_number: c.phone || '',
                 source_image: 'Database',
                 extraction_status: 'Success',
                 selected: true,
