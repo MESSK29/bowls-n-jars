@@ -67,8 +67,7 @@ class MockVoiceCallAgent(VoiceCallAgent):
             "Not Interested", 
             "Follow-up Required", 
             "Requested More Information",
-            "No Response",
-            "Busy"
+            "No Response"
         ]
         
         outcome = random.choice(outcomes)
@@ -76,8 +75,6 @@ class MockVoiceCallAgent(VoiceCallAgent):
         # Map provider outcome to system status
         if outcome in ["No Response"]:
             status = "No Answer"
-        elif outcome in ["Busy"]:
-            status = "Busy"
         else:
             status = "Completed"
             
