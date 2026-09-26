@@ -57,8 +57,11 @@ export const CustomerCallsTab: React.FC = () => {
             } else {
                 setActiveBatch(null);
             }
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to load active batch", err);
+            if (err.message === "Network Error") {
+                setError("Lost connection to the server. It may be restarting or updating. Please wait a minute and refresh.");
+            }
         }
     };
 
@@ -625,6 +628,16 @@ export const CustomerCallsTab: React.FC = () => {
                                 <div>Total: <span className="font-bold text-clay-900">{activeBatch.total_customers}</span></div>
                             </div>
                         </div>
+                        
+                        {activeBatch.failed_calls > 0 && (
+                            <div className="mx-6 mt-4 p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm flex items-start gap-2">
+                                <AlertTriangle className="w-5 h-5 flex-shrink-0 mt-0.5" />
+                                <div>
+                                    <p className="font-bold">Some calls failed to start.</p>
+                                    <p>Hover your mouse over the red <strong>FAILED</strong> badges below to see the exact error message from the Agent/Twilio.</p>
+                                </div>
+                            </div>
+                        )}
                         
                         <div className="w-full bg-sand-200 rounded-full h-3 mb-2 overflow-hidden shadow-inner">
                             <div 
