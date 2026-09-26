@@ -110,9 +110,12 @@ class RealTwilioVoiceAgent(VoiceCallAgent):
         twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
         agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "https://your-agent.onrender.com")
 
-        if not account_sid or not auth_token:
+        if not account_sid or not auth_token or not twilio_number:
             print("Missing Twilio credentials in environment.")
-            raise Exception("Twilio credentials missing. Please set TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN.")
+            raise Exception("Twilio credentials missing. Please set TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, and TWILIO_PHONE_NUMBER.")
+            
+        if not agent_base_url or agent_base_url == "https://your-agent.onrender.com":
+            raise Exception("VOICE_AGENT_BASE_URL is not set or still set to the default placeholder in environment.")
             
         call_url = f"{agent_base_url}/voice?name={urllib.parse.quote(customer_name)}&details={urllib.parse.quote(agent_prompt or '')}&phone={urllib.parse.quote(phone_number)}"
         
