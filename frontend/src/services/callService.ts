@@ -121,5 +121,10 @@ export const callService = {
     getCallSummary: async (): Promise<CallSummary> => {
         const response = await api.get('/admin/customer-calls/summary');
         return response.data;
+    },
+    
+    wakeUpServers: async (): Promise<{status: string, message: string}> => {
+        const response = await api.get('/admin/customer-calls/wake-up');
+        return response.data;
     }
 };

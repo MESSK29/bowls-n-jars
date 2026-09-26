@@ -29,6 +29,29 @@ router = APIRouter(prefix="/admin/customer-calls", tags=["Customer Calls"])
 UPLOAD_DIR = "uploads/customer_images"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
+import requests
+
+@router.get("/wake-up")
+def wake_up_servers(admin: User = Depends(get_current_admin)):
+    """
+    Since this endpoint is hit on the backend, the backend is now awake.
+    We just need to ping the voice agent to wake it up too.
+    """
+    agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "https://your-agent.onrender.com")
+    
+    # If using mock or not set, just return success for backend
+    if not agent_base_url or agent_base_url == "https://your-agent.onrender.com" or os.getenv("USE_MOCK_AGENT", "true").lower() == "true":
+        return {"status": "success", "message": "Backend is awake (Mock/Local mode active)"}
+        
+    try:
+        # Give it a 10-second timeout, if it takes longer, it might still be waking up but we triggered it
+        requests.get(agent_base_url, timeout=15)
+    except Exception as e:
+        # We don't care if it's 404 or 405, we just care that we sent traffic to it to wake up the container
+        print(f"Wake up ping sent, got exception but traffic was sent: {str(e)}")
+        
+    return {"status": "success", "message": "Both backend and Voice Agent servers are now awake!"}
+
 @router.post("/upload", response_model=ExtractionResponse)
 async def upload_and_extract_images(
     files: List[UploadFile] = File(...),

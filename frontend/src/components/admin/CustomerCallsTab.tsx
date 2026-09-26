@@ -31,8 +31,10 @@ export const CustomerCallsTab: React.FC = () => {
     }, [customers]);
     const [isProcessing, setIsProcessing] = useState(false);
     const [isStarting, setIsStarting] = useState(false);
+    const [isWakingUp, setIsWakingUp] = useState(false);
     const [activeBatch, setActiveBatch] = useState<CallBatch | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [successMsg, setSuccessMsg] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [agentPrompt, setAgentPrompt] = useState('');
     
@@ -239,6 +241,22 @@ export const CustomerCallsTab: React.FC = () => {
         }
     };
 
+    const handleWakeUpServers = async () => {
+        setIsWakingUp(true);
+        setError(null);
+        setSuccessMsg(null);
+        try {
+            const result = await callService.wakeUpServers();
+            setSuccessMsg(result.message);
+            // Hide the success message after 5 seconds
+            setTimeout(() => setSuccessMsg(null), 5000);
+        } catch (err: any) {
+            setError(err.message || "Failed to wake up servers. Please try again.");
+        } finally {
+            setIsWakingUp(false);
+        }
+    };
+
     const handleStartCalls = async () => {
         const selectedToCall = customers.filter(c => c.selected && c.validationStatus === 'Valid');
         if (selectedToCall.length === 0) {
@@ -323,10 +341,26 @@ export const CustomerCallsTab: React.FC = () => {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between mb-4">
-                <h2 className="text-xl font-bold text-clay-900">Customer Calls</h2>
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-xl font-bold text-clay-900 hidden">Customer Calls</h2>
+                <button
+                    onClick={handleWakeUpServers}
+                    disabled={isWakingUp}
+                    className="ml-auto bg-sage-600 text-white px-4 py-2 rounded-xl font-bold hover:bg-sage-700 shadow-md transition-all flex items-center gap-2 text-sm disabled:opacity-70"
+                    title="Click this before making calls if you haven't used the site in 15+ minutes"
+                >
+                    {isWakingUp ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                    {isWakingUp ? 'Waking up servers (Wait ~30s)...' : 'Wake Up Servers (Recommended)'}
+                </button>
             </div>
             
+            {successMsg && (
+                <div className="bg-sage-50 text-sage-700 p-3 rounded-md flex items-center gap-2 border border-sage-200 shadow-sm mb-4">
+                    <CheckCircle2 className="w-5 h-5" />
+                    <span className="text-sm font-bold">{successMsg}</span>
+                </div>
+            )}
+
             {/* Summary */}
             {summary && (
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
