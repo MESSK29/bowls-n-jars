@@ -14,6 +14,12 @@ from app.schemas.customer_call import (
     CallBatchCreate, CallBatchResponse, ExtractionResponse
 )
 from app.core.deps import get_current_admin
+from pydantic import BaseModel
+
+class VoiceLogPayload(BaseModel):
+    caller_number: str
+    summary: str
+    timestamp: str
 
 from app.services.customer_image_service import customer_image_service
 from app.services.call_processor import process_batch_background
@@ -245,3 +251,21 @@ def get_call_summary(
         "interested": interested,
         "follow_ups": follow_ups
     }
+
+@router.post("/voice-logs")
+def receive_voice_logs(payload: VoiceLogPayload, db: Session = Depends(get_db)):
+    # In a real scenario, match by call_id or phone_number. For now we just find the latest.
+    call = db.query(CustomerCall).filter(
+        CustomerCall.phone_number == payload.caller_number
+    ).order_by(CustomerCall.id.desc()).first()
+    
+    if call:
+        call.transcript = payload.summary
+        call.call_status = CallStatus.COMPLETED
+        try:
+            call.call_end_time = datetime.fromisoformat(payload.timestamp)
+        except ValueError:
+            pass
+        db.commit()
+    
+    return {"status": "saved"}
