@@ -76,8 +76,13 @@ def process_batch_background(batch_id: int):
                 db.commit()
                 continue
                 
-        # Finalize batch
-        batch.status = BatchStatus.COMPLETED
+        # Finalize batch ONLY if we are in Mock mode (because mock mode does them synchronously)
+        # In real mode, we leave the batch In Progress so the user can watch the webhooks update the call statuses.
+        from app.services.voice_agent import use_mock
+        if use_mock:
+            batch.status = BatchStatus.COMPLETED
+        # If real mode, it stays IN_PROGRESS indefinitely until the user clicks "Force Cancel / End Batch" in the UI.
+        
         db.commit()
         
     except Exception as e:

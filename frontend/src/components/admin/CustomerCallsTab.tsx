@@ -614,7 +614,7 @@ export const CustomerCallsTab: React.FC = () => {
                                         }}
                                         className="text-xs bg-red-100 text-red-600 px-2 py-1 rounded hover:bg-red-200"
                                     >
-                                        Force Cancel
+                                        Force Cancel / End Batch
                                     </button>
                                 </div>
                                 <p className="text-sm text-clay-500 mt-1">Status: <span className="font-bold text-amber-500">{activeBatch.status}</span></p>
