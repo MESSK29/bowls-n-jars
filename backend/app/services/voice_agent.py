@@ -124,6 +124,9 @@ class RealTwilioVoiceAgent(VoiceCallAgent):
                 
         call_url = f"{agent_base_url}/voice?name={urllib.parse.quote(customer_name)}&details={urllib.parse.quote(agent_prompt or '')}&phone={urllib.parse.quote(formatted_phone)}"
         
+        print(f"\n[INFO - OUTBOUND CALL] Requesting Twilio to dial {formatted_phone}")
+        print(f"[INFO - OUTBOUND CALL] Twilio will fetch TwiML from: {call_url}\n")
+        
         try:
             backend_url = os.getenv("BACKEND_URL", "https://bowls-n-jars.onrender.com")
             webhook_url = f"{backend_url}/api/webhooks/twilio-status"
