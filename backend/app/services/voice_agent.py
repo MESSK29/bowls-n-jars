@@ -3,6 +3,9 @@ import random
 from datetime import datetime, timezone
 from typing import Dict, Any, Tuple
 from abc import ABC, abstractmethod
+import os
+import requests
+import urllib.parse
 
 class VoiceCallAgent(ABC):
     """
@@ -100,5 +103,48 @@ class MockVoiceCallAgent(VoiceCallAgent):
     def get_recording(self, call_id: str) -> str:
         return f"https://mock-provider.example.com/recordings/{call_id}.mp3"
 
-# Export the active agent (can be swapped via Env vars later)
-voice_agent = MockVoiceCallAgent()
+class RealTwilioVoiceAgent(VoiceCallAgent):
+    def start_call(self, customer_name: str, phone_number: str, agent_prompt: str = None) -> str:
+        account_sid = os.getenv("TWILIO_ACCOUNT_SID")
+        auth_token = os.getenv("TWILIO_AUTH_TOKEN")
+        twilio_number = os.getenv("TWILIO_PHONE_NUMBER")
+        agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "https://your-agent.onrender.com")
+
+        if not account_sid or not auth_token:
+            print("Missing Twilio credentials in environment.")
+            return "error_missing_creds"
+            
+        call_url = f"{agent_base_url}/voice?name={urllib.parse.quote(customer_name)}&details={urllib.parse.quote(agent_prompt or '')}&phone={urllib.parse.quote(phone_number)}"
+        
+        try:
+            response = requests.post(
+                f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Calls.json",
+                auth=(account_sid, auth_token),
+                data={
+                    "To": phone_number,
+                    "From": twilio_number,
+                    "Url": call_url
+                }
+            )
+            response_data = response.json()
+            print(f"Twilio API Response: {response_data}")
+            return response_data.get("sid", "unknown_sid")
+        except Exception as e:
+            print(f"Twilio API Error: {e}")
+            return "error_api"
+            
+    def get_call_status(self, call_id: str) -> str:
+        return "Calling"
+        
+    def get_call_result(self, call_id: str) -> Dict[str, Any]:
+        return {}
+        
+    def get_transcript(self, call_id: str) -> str:
+        return ""
+        
+    def get_recording(self, call_id: str) -> str:
+        return ""
+
+# Export the active agent
+use_mock = os.getenv("USE_MOCK_AGENT", "true").lower() == "true"
+voice_agent = MockVoiceCallAgent() if use_mock else RealTwilioVoiceAgent()
