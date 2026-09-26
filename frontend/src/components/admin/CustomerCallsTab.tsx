@@ -68,14 +68,25 @@ export const CustomerCallsTab: React.FC = () => {
     };
 
     useEffect(() => {
+        let isMounted = true;
+        let timeoutId: NodeJS.Timeout;
+
         loadSummary();
-        loadActiveBatch();
-        
-        const interval = setInterval(() => {
-            loadActiveBatch();
-        }, 5000);
-        
-        return () => clearInterval(interval);
+
+        const poll = async () => {
+            if (!isMounted) return;
+            await loadActiveBatch();
+            if (isMounted) {
+                timeoutId = setTimeout(poll, 10000);
+            }
+        };
+
+        poll();
+
+        return () => {
+            isMounted = false;
+            if (timeoutId) clearTimeout(timeoutId);
+        };
     }, []);
 
     useEffect(() => {

@@ -125,13 +125,18 @@ class RealTwilioVoiceAgent(VoiceCallAgent):
         call_url = f"{agent_base_url}/voice?name={urllib.parse.quote(customer_name)}&details={urllib.parse.quote(agent_prompt or '')}&phone={urllib.parse.quote(formatted_phone)}"
         
         try:
+            backend_url = os.getenv("BACKEND_URL", "https://bowls-n-jars.onrender.com")
+            webhook_url = f"{backend_url}/api/webhooks/twilio-status"
+            
             response = requests.post(
                 f"https://api.twilio.com/2010-04-01/Accounts/{account_sid}/Calls.json",
                 auth=(account_sid, auth_token),
                 data={
                     "To": formatted_phone,
                     "From": twilio_number,
-                    "Url": call_url
+                    "Url": call_url,
+                    "StatusCallback": webhook_url,
+                    "StatusCallbackEvent": ["initiated", "ringing", "answered", "completed"]
                 },
                 timeout=10
             )

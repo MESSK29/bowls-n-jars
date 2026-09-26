@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.database import engine, Base, SessionLocal
 from app.seeds.seed_data import seed_database
-from app.api import auth, products, categories, orders, reviews, wishlist, admin, customer_calls
+from app.api import auth, products, categories, orders, reviews, wishlist, admin, customer_calls, webhooks
 
 # Create tables
 Base.metadata.create_all(bind=engine)
@@ -50,6 +50,7 @@ app.include_router(orders.router, prefix=settings.API_V1_STR)
 app.include_router(wishlist.router, prefix=settings.API_V1_STR)
 app.include_router(admin.router, prefix=settings.API_V1_STR)
 app.include_router(customer_calls.router, prefix=settings.API_V1_STR)
+app.include_router(webhooks.router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     import uvicorn
