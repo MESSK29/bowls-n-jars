@@ -80,7 +80,8 @@ export const CustomerCallsTab: React.FC = () => {
     }, [imageUrls]);
 
     // Validate a single phone number
-    const validatePhone = (phone: string): boolean => {
+    const validatePhone = (phone: string | null | undefined): boolean => {
+        if (!phone) return false;
         // Basic Indian phone validation: 10 digits, optionally starting with +91 or 0
         const clean = phone.replace(/[\s-]/g, '');
         return /^(\+91|0)?[6-9]\d{9}$/.test(clean);
@@ -91,19 +92,22 @@ export const CustomerCallsTab: React.FC = () => {
         const phoneCounts = new Map<string, number>();
         
         list.forEach(c => {
-            const cleanPhone = c.phone_number.replace(/[\s-]/g, '');
+            const phoneStr = c.phone_number || '';
+            const cleanPhone = phoneStr.replace(/[\s-]/g, '');
             phoneCounts.set(cleanPhone, (phoneCounts.get(cleanPhone) || 0) + 1);
         });
 
         return list.map(c => {
-            const cleanPhone = c.phone_number.replace(/[\s-]/g, '');
+            const phoneStr = c.phone_number || '';
+            const nameStr = c.customer_name || '';
+            const cleanPhone = phoneStr.replace(/[\s-]/g, '');
             const isDuplicate = (phoneCounts.get(cleanPhone) || 0) > 1;
-            const isValidPhone = validatePhone(c.phone_number);
+            const isValidPhone = validatePhone(phoneStr);
             
             let status: 'Valid' | 'Invalid' | 'Duplicate' = 'Valid';
             let msg = '';
             
-            if (!c.customer_name.trim() || !c.phone_number.trim()) {
+            if (!nameStr.trim() || !phoneStr.trim()) {
                 status = 'Invalid';
                 msg = 'Missing required info';
             } else if (!isValidPhone) {
