@@ -651,12 +651,15 @@ export const CustomerCallsTab: React.FC = () => {
                                         <td className="px-6 py-4 font-medium text-clay-900">{c.customer_name}</td>
                                         <td className="px-6 py-4 text-clay-600 font-mono">{c.phone_number}</td>
                                         <td className="px-6 py-4">
-                                            <span className={`px-2.5 py-1 rounded-md text-xs font-bold tracking-wide uppercase ${
-                                                c.call_status === 'Completed' ? 'bg-sage-100 text-sage-700' :
-                                                c.call_status === 'Calling' ? 'bg-amber-100 text-amber-700 animate-pulse' :
-                                                c.call_status === 'Failed' || c.call_status === 'No Answer' ? 'bg-red-100 text-red-700' :
-                                                'bg-sand-200 text-clay-600'
-                                            }`}>
+                                            <span 
+                                                className={`px-2.5 py-1 rounded-md text-xs font-bold tracking-wide uppercase ${
+                                                    c.call_status === 'Completed' ? 'bg-sage-100 text-sage-700' :
+                                                    c.call_status === 'Calling' ? 'bg-amber-100 text-amber-700 animate-pulse' :
+                                                    c.call_status === 'Failed' || c.call_status === 'No Answer' ? 'bg-red-100 text-red-700' :
+                                                    'bg-sand-200 text-clay-600'
+                                                }`}
+                                                title={c.agent_notes || ''}
+                                            >
                                                 {c.call_status}
                                             </span>
                                         </td>
