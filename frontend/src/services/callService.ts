@@ -24,6 +24,16 @@ export interface CustomerCall {
     transcript?: string;
 }
 
+export interface Customer {
+    id: number;
+    email: string;
+    full_name: string;
+    phone: string;
+    role: string;
+    address_json?: string;
+    created_at: string;
+}
+
 export interface CallBatch {
     id: number;
     batch_name: string;
@@ -36,7 +46,13 @@ export interface CallBatch {
     google_sheet_url?: string;
     google_sheet_tab_name?: string;
     google_sheet_tab_id?: string;
+    agent_prompt?: string;
     calls: CustomerCall[];
+}
+
+export interface CallBatchCreate {
+    customers: CustomerCall[];
+    agent_prompt?: string;
 }
 
 export interface CallSummary {
@@ -62,8 +78,13 @@ export const callService = {
         return response.data;
     },
 
-    createCallBatch: async (customers: CustomerCall[]): Promise<CallBatch> => {
-        const response = await api.post('/admin/customer-calls/batches', { customers });
+    createCallBatch: async (data: CallBatchCreate): Promise<CallBatch> => {
+        const response = await api.post('/admin/customer-calls/batches', data);
+        return response.data;
+    },
+
+    getCustomers: async (): Promise<Customer[]> => {
+        const response = await api.get('/admin/customers');
         return response.data;
     },
 

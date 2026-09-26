@@ -77,9 +77,11 @@ class CallBatchBase(BaseModel):
     google_sheet_url: Optional[str] = None
     google_sheet_tab_name: Optional[str] = None
     google_sheet_tab_id: Optional[str] = None
+    agent_prompt: Optional[str] = None
 
 class CallBatchCreate(BaseModel):
     customers: List[CustomerCallCreate]
+    agent_prompt: Optional[str] = None
 
 class CallBatchResponse(CallBatchBase):
     id: int

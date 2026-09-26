@@ -97,7 +97,8 @@ def create_batch(
         batch_name=batch_name,
         batch_date=datetime.utcnow(),
         total_customers=len(batch_in.customers),
-        status=BatchStatus.PENDING
+        status=BatchStatus.PENDING,
+        agent_prompt=batch_in.agent_prompt
     )
     db.add(new_batch)
     db.commit()

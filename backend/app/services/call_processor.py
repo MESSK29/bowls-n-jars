@@ -30,7 +30,7 @@ def process_batch_background(batch_id: int):
                 db.commit()
                 
                 # Mock Mode/Real Mode abstraction handles the delay
-                call_id = voice_agent.start_call(call.customer_name, call.phone_number)
+                call_id = voice_agent.start_call(call.customer_name, call.phone_number, batch.agent_prompt)
                 
                 # 2. In a real environment with a webhook, we would stop here and wait for webhook.
                 # Since we don't have webhooks connected yet, we poll synchronously in this worker.

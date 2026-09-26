@@ -72,6 +72,15 @@ def get_all_orders(
 ):
     return db.query(Order).order_by(Order.created_at.desc()).all()
 
+from app.schemas import UserResponse
+
+@router.get("/customers", response_model=List[UserResponse])
+def get_all_customers(
+    admin: User = Depends(get_current_admin),
+    db: Session = Depends(get_db)
+):
+    return db.query(User).filter(User.role == "customer").order_by(User.created_at.desc()).all()
+
 @router.patch("/orders/{order_id}/status", response_model=OrderResponse)
 def update_order_status(
     order_id: int,

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Upload, X, Play, RefreshCw, AlertTriangle, Image as ImageIcon, CheckCircle2, Edit2, Save } from 'lucide-react';
+import { Upload, X, Play, RefreshCw, AlertTriangle, Image as ImageIcon, CheckCircle2, Edit2, Save, Users, MessageSquare } from 'lucide-react';
 import { callService, CustomerCall, CallBatch, CallSummary } from '../../services/callService';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -34,6 +34,7 @@ export const CustomerCallsTab: React.FC = () => {
     const [activeBatch, setActiveBatch] = useState<CallBatch | null>(null);
     const [error, setError] = useState<string | null>(null);
     const [isDragging, setIsDragging] = useState(false);
+    const [agentPrompt, setAgentPrompt] = useState('');
     
     const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -198,6 +199,39 @@ export const CustomerCallsTab: React.FC = () => {
         }
     };
 
+    const handleOpenCustomersData = async () => {
+        setIsProcessing(true);
+        setError(null);
+        try {
+            const dbCustomers = await callService.getCustomers();
+            const editable: EditableCustomer[] = dbCustomers.map(c => ({
+                customer_name: c.full_name,
+                phone_number: c.phone,
+                source_image: 'Database',
+                extraction_status: 'Success',
+                selected: true,
+                isEditing: false,
+                validationStatus: 'Valid',
+                validationMessage: ''
+            }));
+            
+            // Merge with existing avoiding complete duplicates
+            setCustomers(prev => {
+                const combined = [...prev];
+                editable.forEach(newCust => {
+                    if (!combined.some(existing => existing.phone_number === newCust.phone_number)) {
+                        combined.push(newCust);
+                    }
+                });
+                return updateValidations(combined);
+            });
+        } catch (err: any) {
+            setError(err.response?.data?.detail || "Failed to fetch customers.");
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
     const handleStartCalls = async () => {
         const selectedToCall = customers.filter(c => c.selected && c.validationStatus === 'Valid');
         if (selectedToCall.length === 0) {
@@ -215,7 +249,10 @@ export const CustomerCallsTab: React.FC = () => {
         try {
             // Strip UI-only fields
             const cleanCustomers = selectedToCall.map(({ selected, isEditing, validationStatus, validationMessage, tempName, tempPhone, ...rest }) => rest);
-            const batch = await callService.createCallBatch(cleanCustomers);
+            const batch = await callService.createCallBatch({
+                customers: cleanCustomers,
+                agent_prompt: agentPrompt
+            });
             await callService.startCallBatch(batch.id);
             setCustomers([]);
             setImages([]);
@@ -315,7 +352,17 @@ export const CustomerCallsTab: React.FC = () => {
             {/* Upload Area */}
             {!activeBatch && customers.length === 0 && (
                 <div className="bg-white p-6 sm:p-8 rounded-2xl border border-sand-200 shadow-warm-sm">
-                    <h3 className="text-lg font-bold text-clay-900 mb-4">Upload Customer Images</h3>
+                    <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-bold text-clay-900">Upload Customer Images</h3>
+                        <button
+                            onClick={handleOpenCustomersData}
+                            disabled={isProcessing}
+                            className="bg-clay-900 text-white px-4 py-2 rounded-xl font-bold hover:bg-clay-800 shadow-md disabled:opacity-70 flex items-center gap-2 transition-all text-sm"
+                        >
+                            {isProcessing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Users className="w-4 h-4" />}
+                            Open Customers Data
+                        </button>
+                    </div>
                     <div 
                         className={`border-2 border-dashed rounded-xl p-8 sm:p-12 text-center transition-colors cursor-pointer
                             ${isDragging ? 'border-amber-500 bg-amber-50' : 'border-sand-300 hover:bg-cream-200/50'}`}
@@ -369,6 +416,25 @@ export const CustomerCallsTab: React.FC = () => {
                             </div>
                         </div>
                     )}
+                </div>
+            )}
+
+            {/* Agent Work Section */}
+            {!activeBatch && (
+                <div className="bg-white p-6 sm:p-8 rounded-2xl border border-sand-200 shadow-warm-sm">
+                    <div className="flex items-center gap-2 mb-4">
+                        <MessageSquare className="w-5 h-5 text-amber-500" />
+                        <h3 className="text-lg font-bold text-clay-900">Agent Work (Instant Conversation Helper)</h3>
+                    </div>
+                    <p className="text-sm text-clay-500 mb-4">
+                        Enter the message you want the agent to tell the customer after greeting. The agent will translate this into Telugu.
+                    </p>
+                    <textarea 
+                        className="w-full h-24 p-3 border border-sand-300 rounded-xl focus:ring-2 focus:ring-amber-500 focus:border-amber-500 outline-none resize-none"
+                        placeholder="e.g. New stock has arrived in the store, please visit!"
+                        value={agentPrompt}
+                        onChange={(e) => setAgentPrompt(e.target.value)}
+                    ></textarea>
                 </div>
             )}
 

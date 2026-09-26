@@ -10,7 +10,7 @@ class VoiceCallAgent(ABC):
     """
     
     @abstractmethod
-    def start_call(self, customer_name: str, phone_number: str) -> str:
+    def start_call(self, customer_name: str, phone_number: str, agent_prompt: str = None) -> str:
         """Starts a call and returns a provider-specific Call ID"""
         pass
         
@@ -41,10 +41,15 @@ class MockVoiceCallAgent(VoiceCallAgent):
     It intentionally introduces delays and random outcomes to simulate a real calling environment.
     """
     
-    def start_call(self, customer_name: str, phone_number: str) -> str:
+    def __init__(self):
+        self.call_prompts = {}
+
+    def start_call(self, customer_name: str, phone_number: str, agent_prompt: str = None) -> str:
         # Simulate API latency
         time.sleep(1)
-        return f"mock_call_{random.randint(10000, 99999)}_{int(time.time())}"
+        call_id = f"mock_call_{random.randint(10000, 99999)}_{int(time.time())}"
+        self.call_prompts[call_id] = agent_prompt
+        return call_id
         
     def get_call_status(self, call_id: str) -> str:
         return "Completed"
@@ -88,7 +93,9 @@ class MockVoiceCallAgent(VoiceCallAgent):
         }
         
     def get_transcript(self, call_id: str) -> str:
-        return "Agent: Hello, this is Bowls 'N' Jars.\nCustomer: Hi, I was looking at your ceramics.\nAgent: Great, let me help you with that. [MOCK TRANSCRIPT]"
+        prompt = self.call_prompts.get(call_id)
+        intro = f"Agent (in Telugu): Namaskaram, idi Bowls 'N' Jars nundi. {prompt if prompt else 'Meeku elanti sahayam kavali?'}\n"
+        return intro + "Customer: Namaskaram! Chala bagundi, nenu chustanu.\nAgent: Tarwata emaina queries unte adagandi. [MOCK TRANSCRIPT]"
         
     def get_recording(self, call_id: str) -> str:
         return f"https://mock-provider.example.com/recordings/{call_id}.mp3"
