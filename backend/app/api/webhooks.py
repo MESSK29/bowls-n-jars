@@ -48,17 +48,17 @@ async def twilio_status_webhook(
         return {"status": "not found"}
 
     # 3. Update the call status
-    # Twilio statuses: queued, ringing, in-progress, completed, busy, failed, no-answer, canceled
+    # Twilio statuses: queued, initiated, ringing, in-progress, completed, busy, failed, no-answer, canceled
     status_mapping = {
-        "queued": CallStatus.PENDING,
-        "initiated": CallStatus.IN_PROGRESS,
-        "ringing": CallStatus.IN_PROGRESS,
-        "in-progress": CallStatus.IN_PROGRESS,
+        "queued": CallStatus.QUEUED,
+        "initiated": CallStatus.CALLING,
+        "ringing": CallStatus.CALLING,
+        "in-progress": CallStatus.CALLING,
         "completed": CallStatus.COMPLETED,
-        "busy": CallStatus.FAILED,
+        "busy": CallStatus.BUSY,
         "failed": CallStatus.FAILED,
-        "no-answer": CallStatus.FAILED,
-        "canceled": CallStatus.FAILED
+        "no-answer": CallStatus.NO_ANSWER,
+        "canceled": CallStatus.CANCELLED
     }
     
     outcome_mapping = {
@@ -94,10 +94,10 @@ def check_and_complete_batch(batch_id: int):
         if not batch:
             return
             
-        # Check if there are any calls still pending or in progress
+        # Check if there are any calls still pending, queued, or calling
         active_calls = db.query(CustomerCall).filter(
             CustomerCall.batch_id == batch_id,
-            CustomerCall.call_status.in_([CallStatus.PENDING, CallStatus.IN_PROGRESS])
+            CustomerCall.call_status.in_([CallStatus.PENDING, CallStatus.QUEUED, CallStatus.CALLING])
         ).count()
         
         if active_calls == 0 and batch.status == BatchStatus.IN_PROGRESS:
