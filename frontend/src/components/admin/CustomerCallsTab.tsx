@@ -69,7 +69,7 @@ export const CustomerCallsTab: React.FC = () => {
 
     useEffect(() => {
         let isMounted = true;
-        let timeoutId: NodeJS.Timeout;
+        let timeoutId: ReturnType<typeof setTimeout>;
 
         loadSummary();
 
