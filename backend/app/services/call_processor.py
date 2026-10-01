@@ -19,39 +19,32 @@ def process_batch_background(batch_id: int):
             return
 
         # -----------------------------------------------------------------
-        # In real (non-mock) mode: verify the voice agent is ready BEFORE
-        # placing any calls.  This is the primary guard against the
-        # cold-start race condition.
+        # Advisory readiness check: poll the voice agent /health briefly.
+        # This is warn-only — calls are placed regardless of the result.
+        # The /wake-up endpoint (called from the frontend BEFORE start) is
+        # the right place to block on readiness. The batch worker must not
+        # silently kill a batch if the quick check times out.
         # -----------------------------------------------------------------
         if not use_mock:
+            import logging
+            logger = logging.getLogger("bowls-n-jars.call_processor")
             agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "")
             if agent_base_url and agent_base_url != "https://your-agent.onrender.com":
                 from app.api.customer_calls import _wait_for_agent_ready
-                import logging
-                logger = logging.getLogger("bowls-n-jars.call_processor")
                 logger.info(
-                    f"[BATCH {batch_id}] Checking voice agent readiness before placing calls..."
+                    f"[BATCH {batch_id}] Advisory readiness check for voice agent..."
                 )
+                # Short timeout — just a quick sanity check, not a hard gate.
                 ready = _wait_for_agent_ready(
-                    agent_base_url, poll_interval_s=2.0, timeout_s=60.0
+                    agent_base_url, poll_interval_s=2.0, timeout_s=10.0
                 )
                 if not ready:
-                    logger.error(
-                        f"[BATCH {batch_id}] Voice agent not ready after 60s. "
-                        "Marking batch FAILED."
+                    logger.warning(
+                        f"[BATCH {batch_id}] Voice agent did not confirm ready in 10s — "
+                        "proceeding with calls anyway. The agent may still be warming up."
                     )
-                    batch.status = BatchStatus.FAILED
-                    for call in batch.calls:
-                        if call.call_status in [CallStatus.PENDING, CallStatus.QUEUED]:
-                            call.call_status = CallStatus.FAILED
-                            call.agent_notes = (
-                                "System Error: Voice agent did not become ready in time "
-                                "(cold-start timeout). Please retry."
-                            )
-                            call.call_end_time = datetime.now(timezone.utc)
-                    db.commit()
-                    return
-                logger.info(f"[BATCH {batch_id}] Voice agent is READY. Proceeding with calls.")
+                else:
+                    logger.info(f"[BATCH {batch_id}] Voice agent confirmed READY. Starting calls.")
 
         calls = db.query(CustomerCall).filter(
             CustomerCall.batch_id == batch_id,
