@@ -1,5 +1,6 @@
 import os
 import shutil
+import time
 from typing import List
 from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks
@@ -30,27 +31,84 @@ UPLOAD_DIR = "uploads/customer_images"
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 
 import requests
+import logging
+
+logger = logging.getLogger("bowls-n-jars.customer_calls")
+
+
+def _wait_for_agent_ready(
+    agent_base_url: str,
+    poll_interval_s: float = 2.0,
+    timeout_s: float = 60.0,
+) -> bool:
+    """
+    Poll the voice agent's /health endpoint until it reports ready=true.
+
+    Returns True when the agent is ready, False if timeout_s is exceeded.
+    This is intentionally synchronous (called from background threads and
+    from the synchronous wake_up_servers endpoint).
+    """
+    health_url = f"{agent_base_url.rstrip('/')}/health"
+    deadline = time.monotonic() + timeout_s
+    attempt = 0
+    while time.monotonic() < deadline:
+        attempt += 1
+        try:
+            resp = requests.get(health_url, timeout=5)
+            data = resp.json()
+            if resp.status_code == 200 and data.get("ready") is True:
+                logger.info(
+                    f"[WAKE-UP] Voice agent is READY after {attempt} poll(s) "
+                    f"— {health_url}"
+                )
+                return True
+            logger.info(
+                f"[WAKE-UP] Poll #{attempt}: agent not ready yet "
+                f"(status={resp.status_code}, body={data}). Retrying in {poll_interval_s}s..."
+            )
+        except Exception as exc:
+            logger.info(
+                f"[WAKE-UP] Poll #{attempt}: request failed ({exc}). Retrying in {poll_interval_s}s..."
+            )
+        time.sleep(poll_interval_s)
+
+    logger.error(
+        f"[WAKE-UP] Voice agent did NOT become ready within {timeout_s}s. Giving up."
+    )
+    return False
+
 
 @router.get("/wake-up")
 def wake_up_servers(admin: User = Depends(get_current_admin)):
     """
-    Since this endpoint is hit on the backend, the backend is now awake.
-    We just need to ping the voice agent to wake it up too.
+    Wakes up the voice agent and WAITS (polls) until it reports healthy.
+    Returns 200 when ready, 503 if it times out.
+    Must be called and awaited by the frontend before starting any batch.
     """
-    agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "https://your-agent.onrender.com")
-    
-    # If using mock or not set, just return success for backend
-    if not agent_base_url or agent_base_url == "https://your-agent.onrender.com" or os.getenv("USE_MOCK_AGENT", "true").lower() == "true":
+    agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "")
+
+    # Local/mock mode: backend is already awake, no agent to ping.
+    if (
+        not agent_base_url
+        or agent_base_url == "https://your-agent.onrender.com"
+        or os.getenv("USE_MOCK_AGENT", "true").lower() == "true"
+    ):
+        logger.info("[WAKE-UP] Mock/local mode — skipping voice agent poll.")
         return {"status": "success", "message": "Backend is awake (Mock/Local mode active)"}
-        
-    try:
-        # Give it a 10-second timeout, if it takes longer, it might still be waking up but we triggered it
-        requests.get(agent_base_url, timeout=15)
-    except Exception as e:
-        # We don't care if it's 404 or 405, we just care that we sent traffic to it to wake up the container
-        print(f"Wake up ping sent, got exception but traffic was sent: {str(e)}")
-        
-    return {"status": "success", "message": "Both backend and Voice Agent servers are now awake!"}
+
+    logger.info(f"[WAKE-UP] Polling voice agent at {agent_base_url} until ready...")
+    ready = _wait_for_agent_ready(agent_base_url, poll_interval_s=2.0, timeout_s=60.0)
+
+    if not ready:
+        raise HTTPException(
+            status_code=503,
+            detail=(
+                "Voice agent did not become ready within 60 seconds. "
+                "Please retry after a moment — the service may still be cold-starting."
+            ),
+        )
+
+    return {"status": "success", "message": "Both backend and Voice Agent servers are READY!"}
 
 @router.post("/upload", response_model=ExtractionResponse)
 async def upload_and_extract_images(
