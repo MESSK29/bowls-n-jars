@@ -1,6 +1,7 @@
 import os
 import shutil
 import time
+import asyncio
 from typing import List
 from datetime import datetime, date
 from fastapi import APIRouter, Depends, HTTPException, status, UploadFile, File, BackgroundTasks
@@ -36,58 +37,55 @@ import logging
 logger = logging.getLogger("bowls-n-jars.customer_calls")
 
 
-def _wait_for_agent_ready(
+async def _wait_for_agent_ready(
     agent_base_url: str,
     poll_interval_s: float = 2.0,
     timeout_s: float = 60.0,
 ) -> bool:
     """
-    Poll the voice agent's /health endpoint until it reports ready=true.
-
-    Returns True when the agent is ready, False if timeout_s is exceeded.
-    This is intentionally synchronous (called from background threads and
-    from the synchronous wake_up_servers endpoint).
+    Async poll of the voice agent's /health endpoint until ready=true.
+    Uses asyncio.sleep so it NEVER blocks the FastAPI event loop.
+    Returns True when ready, False on timeout.
     """
+    import aiohttp as _aiohttp
     health_url = f"{agent_base_url.rstrip('/')}/health"
-    deadline = time.monotonic() + timeout_s
+    deadline = asyncio.get_event_loop().time() + timeout_s
     attempt = 0
-    while time.monotonic() < deadline:
-        attempt += 1
-        try:
-            resp = requests.get(health_url, timeout=5)
-            data = resp.json()
-            if resp.status_code == 200 and data.get("ready") is True:
+    async with _aiohttp.ClientSession() as session:
+        while asyncio.get_event_loop().time() < deadline:
+            attempt += 1
+            try:
+                async with session.get(health_url, timeout=_aiohttp.ClientTimeout(total=5)) as resp:
+                    data = await resp.json()
+                    if resp.status == 200 and data.get("ready") is True:
+                        logger.info(
+                            f"[WAKE-UP] Voice agent READY after {attempt} poll(s) — {health_url}"
+                        )
+                        return True
+                    logger.info(
+                        f"[WAKE-UP] Poll #{attempt}: not ready yet "
+                        f"(status={resp.status}, body={data}). Retrying in {poll_interval_s}s..."
+                    )
+            except Exception as exc:
                 logger.info(
-                    f"[WAKE-UP] Voice agent is READY after {attempt} poll(s) "
-                    f"— {health_url}"
+                    f"[WAKE-UP] Poll #{attempt}: request error ({exc}). Retrying in {poll_interval_s}s..."
                 )
-                return True
-            logger.info(
-                f"[WAKE-UP] Poll #{attempt}: agent not ready yet "
-                f"(status={resp.status_code}, body={data}). Retrying in {poll_interval_s}s..."
-            )
-        except Exception as exc:
-            logger.info(
-                f"[WAKE-UP] Poll #{attempt}: request failed ({exc}). Retrying in {poll_interval_s}s..."
-            )
-        time.sleep(poll_interval_s)
+            await asyncio.sleep(poll_interval_s)
 
-    logger.error(
-        f"[WAKE-UP] Voice agent did NOT become ready within {timeout_s}s. Giving up."
-    )
+    logger.error(f"[WAKE-UP] Agent not ready within {timeout_s}s.")
     return False
 
 
 @router.get("/wake-up")
-def wake_up_servers(admin: User = Depends(get_current_admin)):
+async def wake_up_servers(admin: User = Depends(get_current_admin)):
     """
-    Wakes up the voice agent and WAITS (polls) until it reports healthy.
-    Returns 200 when ready, 503 if it times out.
-    Must be called and awaited by the frontend before starting any batch.
+    Wakes the voice agent and polls until it reports healthy (non-blocking).
+    Returns 200 when ready, 503 on timeout.
+    Call this and await success BEFORE starting any batch.
     """
     agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "")
 
-    # Local/mock mode: backend is already awake, no agent to ping.
+    # Local/mock mode — skip agent poll
     if (
         not agent_base_url
         or agent_base_url == "https://your-agent.onrender.com"
@@ -97,14 +95,14 @@ def wake_up_servers(admin: User = Depends(get_current_admin)):
         return {"status": "success", "message": "Backend is awake (Mock/Local mode active)"}
 
     logger.info(f"[WAKE-UP] Polling voice agent at {agent_base_url} until ready...")
-    ready = _wait_for_agent_ready(agent_base_url, poll_interval_s=2.0, timeout_s=60.0)
+    ready = await _wait_for_agent_ready(agent_base_url, poll_interval_s=2.0, timeout_s=60.0)
 
     if not ready:
         raise HTTPException(
             status_code=503,
             detail=(
                 "Voice agent did not become ready within 60 seconds. "
-                "Please retry after a moment — the service may still be cold-starting."
+                "Please retry — the service may still be cold-starting."
             ),
         )
 

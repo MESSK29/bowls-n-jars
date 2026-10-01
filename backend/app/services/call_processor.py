@@ -18,34 +18,6 @@ def process_batch_background(batch_id: int):
         if not batch:
             return
 
-        # -----------------------------------------------------------------
-        # Advisory readiness check: poll the voice agent /health briefly.
-        # This is warn-only — calls are placed regardless of the result.
-        # The /wake-up endpoint (called from the frontend BEFORE start) is
-        # the right place to block on readiness. The batch worker must not
-        # silently kill a batch if the quick check times out.
-        # -----------------------------------------------------------------
-        if not use_mock:
-            import logging
-            logger = logging.getLogger("bowls-n-jars.call_processor")
-            agent_base_url = os.getenv("VOICE_AGENT_BASE_URL", "")
-            if agent_base_url and agent_base_url != "https://your-agent.onrender.com":
-                from app.api.customer_calls import _wait_for_agent_ready
-                logger.info(
-                    f"[BATCH {batch_id}] Advisory readiness check for voice agent..."
-                )
-                # Short timeout — just a quick sanity check, not a hard gate.
-                ready = _wait_for_agent_ready(
-                    agent_base_url, poll_interval_s=2.0, timeout_s=10.0
-                )
-                if not ready:
-                    logger.warning(
-                        f"[BATCH {batch_id}] Voice agent did not confirm ready in 10s — "
-                        "proceeding with calls anyway. The agent may still be warming up."
-                    )
-                else:
-                    logger.info(f"[BATCH {batch_id}] Voice agent confirmed READY. Starting calls.")
-
         calls = db.query(CustomerCall).filter(
             CustomerCall.batch_id == batch_id,
             CustomerCall.call_status == CallStatus.QUEUED
