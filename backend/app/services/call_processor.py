@@ -37,13 +37,11 @@ def process_batch_background(batch_id: int):
                 from app.services.voice_agent import use_mock
                 
                 if use_mock:
-                    # Since we don't have webhooks connected yet, we poll synchronously in this worker.
-                    # The mock agent simulates this immediately.
+                    # Mock: poll synchronously and fill all result fields.
                     result = voice_agent.get_call_result(call_id)
                     transcript = voice_agent.get_transcript(call_id)
                     recording_url = voice_agent.get_recording(call_id)
                     
-                    # 3. Store results
                     call.call_status = result.get("status", CallStatus.COMPLETED)
                     call.call_outcome = result.get("outcome")
                     call.call_duration = result.get("duration")
@@ -61,7 +59,13 @@ def process_batch_background(batch_id: int):
                     else:
                         batch.failed_calls += 1
                 else:
-                    call.agent_notes = f"Real call initiated. Awaiting Webhook. SID: {call_id}"
+                    # Real mode: store the Twilio SID in recording_url immediately so the
+                    # webhook handler can find this call record by SID even if the batch
+                    # is cancelled before the call completes.
+                    call.recording_url = call_id   # call_id IS the Twilio SID in real mode
+                    call.agent_notes = f"Real call initiated. Awaiting Twilio webhook. SID: {call_id}"
+                    db.commit()  # commit SID to DB NOW — before any webhook can arrive
+                    print(f"[SID SAVED] Call {call.id} → recording_url={call_id!r} committed to DB.")
                 
                 db.commit()
                 

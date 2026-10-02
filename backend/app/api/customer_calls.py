@@ -249,20 +249,31 @@ def cancel_batch(
     admin: User = Depends(get_current_admin),
     db: Session = Depends(get_db)
 ):
+    """
+    Cancel a batch.
+    - PENDING / QUEUED calls: mark CANCELLED immediately (they were never placed).
+    - CALLING calls: do NOT touch — they are already in-flight with Twilio.
+      The Twilio SID stored in recording_url must be preserved so the webhook
+      handler can still find and update these records when Twilio calls back.
+      Their status will be updated to CANCELLED by the webhook naturally.
+    """
     batch = db.query(CallBatch).filter(CallBatch.id == batch_id).first()
     if not batch:
         raise HTTPException(status_code=404, detail="Batch not found")
-        
+
     batch.status = BatchStatus.FAILED
     for call in batch.calls:
-        if call.call_status in [CallStatus.PENDING, CallStatus.QUEUED, CallStatus.CALLING]:
+        # Only cancel calls that haven't been handed off to Twilio yet.
+        if call.call_status in [CallStatus.PENDING, CallStatus.QUEUED]:
             call.call_status = CallStatus.CANCELLED
-            call.agent_notes = "Cancelled by admin"
+            call.agent_notes = "Cancelled by admin before placement"
             call.call_outcome = CallOutcome.PENDING
             call.call_end_time = datetime.utcnow()
-    
+        # CALLING calls: leave them alone. Twilio will fire a webhook when they
+        # finish; the webhook handler will update the status then.
+
     db.commit()
-    return {"message": "Batch cancelled"}
+    return {"message": "Batch cancelled. In-flight calls will be updated by Twilio webhook."}
 
 @router.post("/batches/{batch_id}/google-sheet")
 def generate_google_sheet(

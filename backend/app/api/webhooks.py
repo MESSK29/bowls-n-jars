@@ -35,16 +35,25 @@ async def twilio_status_webhook(
     if not call_sid or not call_status:
         return {"status": "ignored"}
         
-    # 2. Look up the call in the database
-    # The 'recording_url' is currently used to store the Call SID in process_batch_background
+    # 2. Look up the call in the database by Twilio SID.
+    # The SID is stored in recording_url immediately after calls.create() returns.
     call = db.query(CustomerCall).filter(CustomerCall.recording_url == call_sid).first()
+    if call:
+        print(f"[WEBHOOK] Found call {call.id} by recording_url SID={call_sid!r}")
+    else:
+        # Fallback: SID buried in agent_notes (legacy / pre-fix records)
+        call = db.query(CustomerCall).filter(
+            CustomerCall.agent_notes.like(f"%{call_sid}%")
+        ).first()
+        if call:
+            print(f"[WEBHOOK] Found call {call.id} via agent_notes fallback SID={call_sid!r}")
+
     if not call:
-        # If we can't find it by recording_url (SID), maybe the call hasn't been saved yet or SID is elsewhere
-        # We will also check agent_notes just in case
-        call = db.query(CustomerCall).filter(CustomerCall.agent_notes.like(f"%{call_sid}%")).first()
-        
-    if not call:
-        print(f"Webhook error: Could not find call with SID {call_sid}")
+        print(
+            f"[WEBHOOK] WARNING: Could not find call with SID={call_sid!r} "
+            f"(Twilio status={call_status!r}). "
+            "Record may predate the SID-persistence fix. Ignoring."
+        )
         return {"status": "not found"}
 
     # 3. Update the call status
